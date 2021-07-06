@@ -1,0 +1,26 @@
+#ifndef luay_common
+#define luay_common
+
+using namespace std;
+
+extern "C" {
+    #include <lua5.4/lua.hpp>
+    #include <lua5.4/lualib.h>
+    #include <lua5.4/lauxlib.h>
+}
+
+#include <windows.h>
+#include <string>
+#include <string.h>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <ios>
+#include <streambuf>
+
+string split(string base, string delimiter)
+{
+    return base.substr(0, base.find(delimiter));
+}
+
+#endif
