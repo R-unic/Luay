@@ -12,7 +12,7 @@ void memUsage(double& vm_usage, double& resident_set)
 {
    vm_usage = 0.0;
    resident_set = 0.0;
-   ifstream stat_stream("/proc/self/stat",ios_base::in);
+   ifstream stat_stream("/proc/self/stat", ios_base::in);
    string pid, comm, state, ppid, pgrp, session, tty_nr;
    string tpgid, flags, minflt, cminflt, majflt, cmajflt;
    string utime, stime, cutime, cstime, priority, nice;
@@ -34,14 +34,13 @@ void memUsage(double& vm_usage, double& resident_set)
 int process_exit()
 {
     exit(1);
-    return 1;
+    return 0;
 }
 
 int process_memoryUsage(lua_State *L)
 {
     double vm, rss;
     memUsage(vm, rss);
-
     lua_pushnumber(L, vm);
     return 1;
 }
@@ -50,7 +49,6 @@ int process_rss(lua_State *L)
 {
     double vm, rss;
     memUsage(vm, rss);
-
     lua_pushnumber(L, rss);
     return 1;
 }
@@ -80,6 +78,22 @@ static void stackDump (lua_State *L)
         printf(", ");
     }
     printf("}\n");
+}
+
+int luay_cwd(lua_State *L)
+{
+    char buff[FILENAME_MAX]; //create string buffer to hold path
+    GetCurrentDir(buff, FILENAME_MAX);
+    string cwd(buff);
+    lua_pushstring(L, cwd.c_str());
+    return 1;
+}
+
+int luay_wait(lua_State *L)
+{
+    lua_Number secs = luaL_checknumber(L, 1);
+    this_thread::sleep_for(chrono::seconds((int)secs));
+    return 0;
 }
 
 class Luay
@@ -154,8 +168,17 @@ public:
         this->pushProcessArgs();
         luaL_setfuncs(this->L, ProcessLib, 0);
         lua_setglobal(this->L, "Process");
+        
+        lua_pushcfunction(this->L, luay_cwd);
+        lua_setglobal(this->L, "cwd");
 
-        this->doLuaFileRaw("lib/luay.lua");
+        luay_cwd(this->L);
+        lua_setglobal(this->L, "__dirname");
+
+        lua_pushcfunction(this->L, luay_wait);
+        lua_setglobal(this->L, "wait");
+
+        this->doLuaFile("lib/main.lua");
     }
 
     void openDefaultLibs()
@@ -168,26 +191,9 @@ public:
         return left + "/" + right;
     }
 
-    void doLuaFileRaw(string fileName)
-    {
-        // ifstream ps(".path");
-        // string path(
-        //     (istreambuf_iterator<char>(ps)),
-        //     (istreambuf_iterator<char>()));
-
-        if (luaL_dofile(this->L, fileName.c_str()) != LUA_OK)
-            this->error();
-    }
-
     void doLuaFile(string fileName)
     {
         // string cwd = this->cwd();
-        string path = "package.path = package.path .. ';" + fileName + "'";
-        while (path.find("main") != string::npos)
-            path.replace(path.find("main.lua"), 8, "?.lua");
-
-        if (luaL_dostring(this->L, path.c_str()) != LUA_OK)
-            this->error();
         if (luaL_dofile(this->L, fileName.c_str()) != LUA_OK)
             this->error();
     }

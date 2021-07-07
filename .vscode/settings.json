@@ -63,7 +63,8 @@
         "forward_list": "cpp",
         "iostream": "cpp",
         "sstream": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "future": "cpp"
     },
     "Lua.diagnostics.disable": [
         "lowercase-global"

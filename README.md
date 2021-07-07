@@ -14,12 +14,11 @@ If you write a regular Lua script that does something and exits, running Luay on
 
 ## Strings
 
-Strings in Luay support a limited set of standard arithmetic operators. These include: +, unary -, unary ~, ^, <<, and >>.  
+Strings in Luay support a limited set of standard arithmetic operators. These include: +, unary -, unary ~, ^, and >>.  
 Here's an example of what each operator does:
-<pre>
+```lua
 -- concatenation
 print("hello " + "world") --> hello world
-print("hello " << "world") --> hello world
 
 -- reverse concatenation
 print("bar" >> "foo") --> foobar
@@ -28,13 +27,57 @@ print("bar" >> "foo") --> foobar
 print(-"abcdefg") --> gfedcba
 
 -- repeat
-print("xyz" ^ 4) --> xyzxyzxyzxyz
+print("xyz" * 4) --> xyzxyzxyzxyz
 
 -- iteration
 for char in ~"hello world" do
     io.write(char) --> hello world
 end
-</pre>
+```
+
+## StdIO
+
+Luay's standard library can be included in your program by calling
+```lua
+using(std)
+```
+
+When calling `using(lib)`, you should always do it at top-level, not in your main function or any other scope.
+Luay's standard library includes standard input and output "streams" (they're just classes with overloaded operators) which you can use to call IO operations with some syntactical sugar. Note that these input/output streams are also stored in the Process library, which is half implemented in C++, half in Luay. This means that `Process.stdout` and `Process.stdin` are aliases for `std.lout` and `std.lin`. Here's a simple example of a program that asks the user a question via the command line to demonstrate standard input:
+```lua
+using(std)
+
+function askContinue()
+    local answer
+    while answer ~= "y" and answer ~= "n" do
+        answer = lin >> "continue with this operation (y/n)? "
+    end
+
+    if answer == "y" then
+        print "continuing..."
+    else
+        print "not continuing..."
+    end
+end
+
+function main()
+    local cmd
+    while not cmd or cmd:IsBlank() do
+        cmd = lin >> "What do you want to do?\n"
+    end
+    askContinue()
+
+    local nextCmd
+    while not nextCmd or nextCmd:IsBlank() do
+        nextCmd = lin >> "What do you want to do now?\n"
+    end
+    askContinue()
+
+    printf "doing {cmd}"
+    printf "doing {nextCmd}"
+    print "exiting"
+end
+```
 
 ## Notes
 

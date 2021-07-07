@@ -3,12 +3,7 @@
 
 using namespace std;
 
-extern "C" {
-    #include <lua5.4/lua.hpp>
-    #include <lua5.4/lualib.h>
-    #include <lua5.4/lauxlib.h>
-}
-
+#include <lua.hpp>
 #include <windows.h>
 #include <string>
 #include <string.h>
@@ -17,6 +12,8 @@ extern "C" {
 #include <iostream>
 #include <ios>
 #include <streambuf>
+#include <chrono>
+#include <thread>
 
 string split(string base, string delimiter)
 {

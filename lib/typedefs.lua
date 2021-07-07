@@ -1,11 +1,39 @@
+---@param f function
+getfenv = function(f) end;
+---@param f function
+---@param table table
+setfenv = function(f, table) end;
+---@param module string
+---@return unknown
+---@return unknown loaderdata
+import = function(module) end;
+---@param lib table
+---@return nil
+using = function(lib) end;
+---@param t table
+---@return function
+values = function(t) 
+    return function() end 
+end;
+
+---@return string
+cwd = function() end;
+---@type string
+__dirname = cwd()
+
+cwd = function() end;
+
+---@param name string
+---@return function
+function namespace(name) end;
+
+function singleton(name) end;
+
+---@class std
 std = {
     endl = "\n";
     repr = function(v, level) end;
-    getfenv = function(f) end;
-    setfenv = function(f, table) end;
-    values = function(t) end;
     printf = function(msg, ...) end;
-    bind = function(fn, self, ...) end;
 
     String = {};
     Vector = {};
@@ -14,31 +42,34 @@ std = {
     Stack = {};
     EventEmitter = {};
     Error = {};
-
+    
     Stream = {
         Stream = {};
         Readable = {};
         ReadableState = {}
     };
-
+    
     stdin = {};
     stdout = {};
 }
 
 util = {
-
+    ---@param fn function
+    ---@param self any
+    ---@vararg ...
+    ---@return function
+    bind = function(fn, self, ...) 
+        return function(self) end 
+    end;
 }
 
 Process = {
+    ---@return integer
     MemoryUsage = function() end;
+    ---@return integer
     RSS = function() end;
-    On = function(event, callback) end;
-    Once = function(event, callback) end;
-    Off = function(event, callback) end;
-    Emit = function(event, ...) end;
-    AddEventListener = function(event, callback) end;
-    RemoveEventListener = function(event, callback) end;
-    argc = 1 | 2;
+    ---@type integer
+    argc = {};
     argv = {};
     env = {
         LUAY_ENV = "production"
