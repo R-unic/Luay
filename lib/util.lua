@@ -14,6 +14,33 @@ do
             end
         end, nil, from - step
     end
+
+    local function bind(fn, self, ...)
+        assert(fn, "fn is nil")
+        local bindArgsLength = select("#", ...)
+      
+        -- Simple binding, just inserts self (or one arg or any kind)
+        if bindArgsLength == 0 then
+            return function (...)
+                return fn(self, ...)
+            end
+        end
+      
+        -- More complex binding inserts arbitrary number of args into call.
+        local bindArgs = {...}
+        return function (...)
+            local argsLength = select("#", ...)
+            local args = {...}
+            local arguments = {}
+            for i = 1, bindArgsLength do
+                arguments[i] = bindArgs[i]
+            end
+            for i = 1, argsLength do
+                arguments[i + bindArgsLength] = args[i]
+            end
+            return fn(self, table.unpack(arguments, 1, bindArgsLength + argsLength))
+        end
+    end
     
     local StringBuilder = class "StringBuilder" do
         local AssertString
@@ -186,12 +213,78 @@ do
         end
     end
 
+    local Function = class "Function" do
+        function Function.new(callback)
+            return constructor(Function, function(self)
+                self.callback = callback
+
+                function self.meta.__call(_, ...)
+                    return self:Call(...)
+                end
+
+                function self.meta.__tostring()
+                    return tostring(self.callback)
+                end
+            end)
+        end
+
+        function Function:Apply(args)
+            return self:Call(table.unpack(args))
+        end
+
+        function Function:Bind(selfValue, ...)
+            self.callback = bind(self.callback, selfValue, ...)
+            return self
+        end
+
+        function Function:Call(...)
+            return self.callback(...)
+        end
+
+        function Function:__repr()
+            return tostring(self)
+        end
+    end
+
+    local EventSubscription = class "EventSubscription" do
+        function EventSubscription.new(event, callback)
+            return constructor(EventSubscription, function(self)
+                self.event = event
+                self.callback = callback
+            end)
+        end
+
+        function EventSubscription:Unsubscribe()
+            self.event.listeners:Remove(self.callback)
+        end
+    end
+
+    local Event = class "Event" do
+        function Event.new()
+            return constructor(Event, function(self)
+                self.listeners = luay.std.Vector("function")
+            end)
+        end
+
+        function Event:Fire(...)
+            for callback in ~self.listeners do
+                callback(...)
+            end
+        end
+
+        function Event:Subscribe(callback)
+            self.listeners:Add(callback)
+            return EventSubscription(self, callback)
+        end
+    end
+
     namespace "util" {
         StringBuilder = StringBuilder;
         HTML = HTML;
+        Function = Function;
+        Event = Event;
 
         isNaN = isNaN;
         range = range;
-        bind = bind;
     }
 end

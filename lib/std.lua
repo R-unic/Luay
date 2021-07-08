@@ -1,31 +1,4 @@
 do
-    local function bind(fn, self, ...)
-        assert(fn, "fn is nil")
-        local bindArgsLength = select("#", ...)
-      
-        -- Simple binding, just inserts self (or one arg or any kind)
-        if bindArgsLength == 0 then
-            return function (...)
-                return fn(self, ...)
-            end
-        end
-      
-        -- More complex binding inserts arbitrary number of args into call.
-        local bindArgs = {...}
-        return function (...)
-            local argsLength = select("#", ...)
-            local args = {...}
-            local arguments = {}
-            for i = 1, bindArgsLength do
-                arguments[i] = bindArgs[i]
-            end
-            for i = 1, argsLength do
-                arguments[i + bindArgsLength] = args[i]
-            end
-            return fn(self, table.unpack(arguments, 1, bindArgsLength + argsLength))
-        end
-    end
-
     local function repr(data, level)
         if not level then
             level = 1
@@ -135,14 +108,14 @@ do
     local Error = class "Error" do
         function Error.new(message)
             return constructor(Error, function(self)
-                self.message = message or "std.Error thrown!"
+                self.message = message or "std::Error thrown!"
             end)
         end
     end
     
     local Vector = class "Vector" do
         function Vector.new(T, base)
-            assert(T and typeof(T) == "string", "cannot create std.Vector with no type")
+            assert(T and typeof(T) == "string", "cannot create std::Vector with no type")
             return constructor(Vector, function(self)
                 self.cache = base or {}
                 self.type = T
@@ -173,6 +146,9 @@ do
         end
     
         local function VectorTypeError(value, expected)
+            if typeof(value) == "Function" and expected == "function" then
+                return
+            end
             throw(Error(("VectorTypeError: \n\tgot: %s\n\texpected: %s"):format(typeof(value), expected)), 3)
         end
 
@@ -596,39 +572,6 @@ do
     end
     
     setmetatable(string, { __index = String })
-
-    local Function = class "Function" do
-        function Function.new(callback)
-            return constructor(Function, function(self)
-                self.callback = callback
-
-                function self.meta.__call(_, ...)
-                    return self:Call(...)
-                end
-
-                function self.meta.__tostring()
-                    return tostring(self.callback)
-                end
-            end)
-        end
-
-        function Function:Apply(args)
-            return self:Call(table.unpack(args))
-        end
-
-        function Function:Bind(selfValue, ...)
-            self.callback = bind(self.callback, selfValue, ...)
-            return self
-        end
-
-        function Function:Call(...)
-            return self.callback(...)
-        end
-
-        function Function:__repr()
-            return tostring(self)
-        end
-    end
     
     local Stack = class "Stack" do
         function Stack.new(base)
@@ -1320,13 +1263,13 @@ do
     end
 
     do
-        local StreamBase = class "StreamBase" do
-            function StreamBase.new()
-                extend(StreamBase, EventEmitter())
-                return defaultConstructor(StreamBase)
+        local Stream = class "Stream" do
+            function Stream.new()
+                extend(Stream, EventEmitter())
+                return defaultConstructor(Stream)
             end
     
-            function StreamBase:Pipe(dest, opts)
+            function Stream:Pipe(dest, opts)
                 local onData, onDrain, onEnd, onClose, onError, cleanup
     
                 function onData(chunk)
@@ -1440,7 +1383,7 @@ do
         local Readable = class "Readable" do
             function Readable.new(opts)
                 return constructor(Readable, function(self)
-                    extend(Readable, StreamBase())
+                    extend(Readable, Stream())
                     self.readableState = ReadableState(opts, self)
                 end)
             end
@@ -1715,7 +1658,7 @@ do
             end
 
             function Readable:On(event, callback)
-                local res = StreamBase.On(self, event, callback)
+                local res = Stream.On(self, event, callback)
 
                 if event == "data" and self.readableState.flowing then
                     self:Resume()
@@ -2088,11 +2031,11 @@ do
             end
         end
 
-        namespace "Stream" {
-            Stream = StreamBase;
+        namespace "stream" {
+            Stream = Stream;
             ReadableState = ReadableState;
             Readable = Readable;
-        }
+        } : alias "std::stream"
     end
     
     namespace "std" {
@@ -2106,9 +2049,8 @@ do
         Queue = Queue;
         Deque = Deque;
         Set = Set;
-        Function = Function;
 
-        Stream = Stream;
+        stream = stream;
     
         repr = repr;
     

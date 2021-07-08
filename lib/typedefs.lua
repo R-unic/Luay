@@ -43,7 +43,7 @@ luay = {
         EventEmitter = {};
         Error = {};
         
-        Stream = {
+        stream = {
             Stream = {};
             Readable = {};
             ReadableState = {}

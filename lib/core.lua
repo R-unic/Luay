@@ -29,15 +29,24 @@ end
 
 function namespace(name)
     return function(body)
-        _ENV[name] = setmetatable(body, { 
+        local state = {name = name}
+
+        local meta = { 
             __newindex = function(self, k, v)
                 throw(std.Error("Cannot write to namespace"))
             end;
 
             __tostring = function()
-                return ("<namespace '%s'>"):format(name);
+                return ("<namespace '%s'>"):format(state.name);
             end
-        })
+        }
+
+        _ENV[name] = setmetatable(body, meta)
+        return {
+            alias = function(_, alias)
+                state.name = alias
+            end
+        }
     end
 end
 
@@ -157,22 +166,15 @@ function lambda(content)
 
     local components = content:Trim():Split("|")
     local body = components:At(1):Trim()
-    local params = luay.std.List() --get empty list, awful
+    local params = luay.std.List()
     if #components == 2 then
         params = body:Split(",")
         body = components:At(2):Trim()
     end
     
-    local luaString = ""
-    local statements = body:Split(";")
-    for stmt in ~statements do
-        if statements:IndexOf(stmt) == #statements then
-            stmt = "return " + stmt
-        end
-        luaString = luaString + stmt + ";" --semicolon for edge cases
-    end
+    local luaString = body:Replace("->", "return")
 
-    return luay.std.Function(function(...)
+    return luay.util.Function(function(...)
         local env = _ENV
         for i, v in varargs(...) do
             local name = params:At(i)

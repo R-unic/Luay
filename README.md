@@ -2,15 +2,18 @@
 
 ## What's Different From Lua?
 
-Luay contrasts starkly to Lua because it comes with "batteries included". This means there is utility that you could find in other languages such as Java or NodeJS.
+Luay contrasts starkly to Lua because it comes with "batteries included". This means there is a plethora of utility that's similar to utility you could find in other languages such as Java or NodeJS.
 
 ## Kinds of Utilities
 
-Luay is loaded with utility to make scripting in Lua as a standalone language much easier. Why you'd want to use Lua as a standalone language? Maybe because it's easy? I don't know, but it's certainly easy with Luay.
+Luay includes utilities such as Java's StringBuilder class, Node's EventEmitter class, data structure classes (map, list, stack, vector), and more.
 
-## Regular Lua Script Incompatibilities
+## Main Method
 
-If you write a regular Lua script that does something and exits, running Luay on it will throw an error. This is because Luay tries to execute a "main" function (or a "Main" method inside of a "Program" class) when you run a file.
+Luay brings a feature to Lua that many other programming languages support, the "main" method. A Luay program must have an entry point, so it looks for a global function called "main". If it cannot find "main", it then looks for a global class called "Program", subsequently a "Main" method inside of the "Program" class. If it doesn't find either, the following error is thrown:
+```s
+[Luay] Your program lacks a 'main' function or 'Program' class with 'Main' method, therefore it can not run.
+```
 
 ## Strings
 
@@ -100,14 +103,14 @@ using(luay.std)
 
 function main()
     local nums = List {32, 64, 128, 256}
-    local doubled = nums:Map(lambda "|x| x * 2")
+    local doubled = nums:Map(lambda "|x| -> x * 2")
     repr(doubled) --> {64, 128, 256, 512}
 end
 ```
 
-You can also take multiple arguments and return multiple values. However, if you ever wanted to use multiple statements inside of a lambda expression (don't know why you would), you must use ";" as a delimiter between them. For example:
+You can also take multiple arguments and return multiple values. If you ever wanted to use multiple statements inside of a lambda expression, treat "->" as a "return" statement. For example:
 ```lua
-local doubled = nums:Map(lambda "|x| printf 'transforming {x}'; x * 2") --> transforming 32 transforming 64 ...
+local doubled = nums:Map(lambda "|x| printf 'transforming {x}' -> x * 2") --> transforming 32 transforming 64 ...
 ```
 
 ## Notes
