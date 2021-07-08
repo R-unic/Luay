@@ -1,4 +1,31 @@
 do
+    local function bind(fn, self, ...)
+        assert(fn, "fn is nil")
+        local bindArgsLength = select("#", ...)
+      
+        -- Simple binding, just inserts self (or one arg or any kind)
+        if bindArgsLength == 0 then
+            return function (...)
+                return fn(self, ...)
+            end
+        end
+      
+        -- More complex binding inserts arbitrary number of args into call.
+        local bindArgs = {...}
+        return function (...)
+            local argsLength = select("#", ...)
+            local args = {...}
+            local arguments = {}
+            for i = 1, bindArgsLength do
+                arguments[i] = bindArgs[i]
+            end
+            for i = 1, argsLength do
+                arguments[i + bindArgsLength] = args[i]
+            end
+            return fn(self, table.unpack(arguments, 1, bindArgsLength + argsLength))
+        end
+    end
+
     local function repr(data, level)
         if not level then
             level = 1
@@ -115,6 +142,7 @@ do
     
     local Vector = class "Vector" do
         function Vector.new(T, base)
+            assert(T and typeof(T) == "string", "cannot create std.Vector with no type")
             return constructor(Vector, function(self)
                 self.cache = base or {}
                 self.type = T
@@ -130,6 +158,10 @@ do
                 function self.meta.__bnot()
                     return self:Values()
                 end
+
+                function self.meta.__band(_, vec)
+                    return self:Union(vec)
+                end
             end)
         end
     
@@ -141,7 +173,7 @@ do
         end
     
         local function VectorTypeError(value, expected)
-            throw(Error(("VectorTypeError: \n\tgot: %s\n\texpected: %s"):format(typeof(value), expected)))
+            throw(Error(("VectorTypeError: \n\tgot: %s\n\texpected: %s"):format(typeof(value), expected)), 3)
         end
 
         local function AssertType(self, value)
@@ -150,15 +182,50 @@ do
             end
         end
 
-        function Vector:Combine(vec)
+        function Vector:Filter(predicate)
+            local res = Vector(self.type)
+            for v in ~self do
+                local i = self:IndexOf(v)
+                if predicate(v, i) then
+                    res:Add(v)
+                end
+            end
+            return res
+        end
+
+        function Vector:Map(transform)
+            local res = Vector(self.type)
+            for v in ~self do
+                local i = self:IndexOf(v)
+                res:Add(transform(v, i))
+            end
+            return res
+        end
+
+        function Vector:At(idx)
+            return self.cache[idx]
+        end
+
+        function Vector:Union(vec)
             assert(
                 TypeEquals(vec, "Vector") and vec.type == "string",
                 "expected to merge Vector<" + self.type + ">"
             )
 
-            for v in vec:Values() do
-                self:Add(v)
+            local res = Vector(self.type, self.cache)
+            for v in ~vec do
+                res:Add(v)
             end
+            return res
+        end
+
+        function Vector:Slice(start, finish)
+            finish = finish or #self
+            local res = Vector(self.type)
+            for i = start, finish do
+                res:Add(self:At(i))
+            end
+            return res
         end
     
         function Vector:Add(value)
@@ -209,6 +276,10 @@ do
             end)
             return res
         end
+
+        function Vector:Unpack()
+            return table.unpack(self.cache)
+        end
     
         function Vector:Indices()
             return pairs(self.cache)
@@ -255,7 +326,60 @@ do
                 function self.meta.__bnot()
                     return self:Values()
                 end
+
+                function self.meta.__band(_, list)
+                    return self:Union(list)
+                end
             end)
+        end
+
+        function List:Union(list)
+            local res = List(self.cache)
+            for v in ~list do
+                res:Add(v)
+            end
+            return res
+        end
+
+        function List:Slice(start, finish)
+            finish = finish or #self
+            local res = List(self.cache)
+            for i = start, finish do
+                res:Add(self:At(i))
+            end
+            return res
+        end
+
+        function List:Shift()
+            self:Remove(self:First())
+        end
+
+        function List:Filter(predicate)
+            local res = List()
+            for v in ~self do
+                local i = self:IndexOf(v)
+                if predicate(v, i) then
+                    res:Add(v)
+                end
+            end
+            return res
+        end
+
+        function List:Map(transform)
+            local res = List()
+            for v in ~self do
+                local i = self:IndexOf(v)
+                res:Add(transform(v, i))
+            end
+            return res
+        end
+
+        function List:Unpack()
+            return table.unpack(self.cache)
+        end
+
+        function List:At(idx)
+            return self.cache[idx]
         end
 
         function List:Join(sep)
@@ -341,6 +465,32 @@ do
                 self.content = content
             end)
         end
+
+        function String:Filter(predicate)
+            local res = ""
+            for i = 1, #self do
+                local v = self:CharAt(i)
+                if predicate(v, i) then
+                    res = res + v
+                end
+            end
+            return res
+        end
+
+        function String:Map(transform)
+            local res = ""
+            for i = 1, #self do
+                res = res + transform(self:CharAt(i), i)
+            end
+            return res
+        end
+
+        function String:Trim()
+            local s = self:GetContent()
+            local _, i1 = s:find("^%s*")
+            local i2 = s:find("%s*$")
+            return self[{i1 + 1;i2 - 1}]
+        end
     
         function String:GetContent()
             return self.content or self
@@ -376,6 +526,14 @@ do
             return res
         end
 
+        function String:Unpack()
+            local charList = List()
+            for c in ~self do
+                charList:Add(c)
+            end
+            return charList:Unpack()
+        end
+
         function String:Occurences(sub)
             return select(2, self:gsub(sub, sub))
         end
@@ -405,17 +563,24 @@ do
             return not self:IsAlphaNumeric() and self:Includes("%s+") or self == ""
         end
 
+        String.IsEmpty = String.IsBlank
+        String.IsWhite = String.IsBlank
+
         function String:IsAlpha()
-            return not self:GetContent():find("%A")
+            return self:GetContent():find("%A")
         end
 
         function String:IsNumeric()
             return tonumber(self:GetContent()) and true or false
         end
 
+        String.IsDigit = String.IsNumeric
+
         function String:IsAlphaNumeric()
-            
+            return self:IsAlpha() or self:IsNumeric()
         end
+
+        String.IsAlphaNum = String.IsAlphaNumeric
 
         function String:Surround(wrap)
             return wrap + self:GetContent() + wrap
@@ -431,11 +596,44 @@ do
     end
     
     setmetatable(string, { __index = String })
+
+    local Function = class "Function" do
+        function Function.new(callback)
+            return constructor(Function, function(self)
+                self.callback = callback
+
+                function self.meta.__call(_, ...)
+                    return self:Call(...)
+                end
+
+                function self.meta.__tostring()
+                    return tostring(self.callback)
+                end
+            end)
+        end
+
+        function Function:Apply(args)
+            return self:Call(table.unpack(args))
+        end
+
+        function Function:Bind(selfValue, ...)
+            self.callback = bind(self.callback, selfValue, ...)
+            return self
+        end
+
+        function Function:Call(...)
+            return self.callback(...)
+        end
+
+        function Function:__repr()
+            return tostring(self)
+        end
+    end
     
     local Stack = class "Stack" do
-        function Stack.new()
+        function Stack.new(base)
             return constructor(Stack, function(self)
-                self.cache = {}
+                self.cache = base or {}
 
                 function self.meta.__tostring()
                     return self:ToString()
@@ -448,9 +646,25 @@ do
                 function self.meta.__bnot()
                     return self:Values()
                 end
+
+                function self.meta.__band(_, stack)
+                    return self:Union(stack)
+                end
             end)
         end
-    
+        
+        function Stack:Unpack()
+            return table.unpack(self.cache)
+        end
+
+        function Stack:Union(stack)
+            local res = Stack(self.cache)
+            for v in ~stack do
+                res:Push(v)
+            end
+            return res
+        end
+        
         function Stack:First()
             return self.cache[1]
         end
@@ -493,11 +707,11 @@ do
     end
     
     local Map = class "Map" do
-        function Map.new(K, V)
+        function Map.new(K, V, base)
             assert(K and typeof(K) == "string", "Map must have key type")
             assert(V and typeof(V) == "string", "Map must have value type")
             return constructor(Map, function(self)
-                self.cache = {}
+                self.cache = base or {}
                 self.K = K
                 self.V = V
 
@@ -530,6 +744,14 @@ do
             if not TypeEquals(value, expected) then
                 MapTypeError(value, expected)
             end
+        end
+
+        function Map:Union(map)
+            local res = Map(self.K, self.V, self.cache)
+            for k, v in map:Keys() do
+                res:Set(k, v)
+            end
+            return res
         end
     
         function Map:Set(key, value)
@@ -582,9 +804,9 @@ do
     end
 
     local Queue = class "Queue" do
-        function Queue.new()
+        function Queue.new(base)
             return constructor(Queue, function(self)
-                self.cache = {}
+                self.cache = base or {}
 
                 function self.meta.__tostring()
                     return self:ToString()
@@ -597,7 +819,36 @@ do
                 function self.meta.__bnot()
                     return self:Values()
                 end
+
+                function self.meta.__band(_, queue)
+                    return self:Union(queue)
+                end
             end)
+        end
+
+        function Queue:Unpack()
+            return table.unpack(self.cache)
+        end
+
+        function Queue:Union(queue)
+            local res = Queue(self.cache)
+            for v in ~queue do
+                res:Add(v)
+            end
+            return res
+        end
+
+        function Queue:Slice(start, finish)
+            finish = finish or #self
+            local res = Queue(self.type)
+            for i = start, finish do
+                res:Add(self:At(i))
+            end
+            return res
+        end
+
+        function Queue:At(idx)
+            return self.cache[idx]
         end
 
         function Queue:Add(value)
@@ -651,6 +902,23 @@ do
             end)
         end
 
+        function Deque:Unpack()
+            return table.unpack(self.cache)
+        end
+
+        function Deque:Slice(start, finish)
+            finish = finish or #self
+            local res = Deque()
+            for i = start, finish do
+                res:AddLast(self:At(i))
+            end
+            return res
+        end
+
+        function Deque:At(idx)
+            return self.cache[idx]
+        end
+
         function Deque:AddFirst(value)
             table.insert(self.cache, 1, value)
         end
@@ -699,9 +967,17 @@ do
                 self.second = second
 
                 function self.meta.__bnot()
-                    return values {self.first, self.second}
+                    return values(self:ToTable())
                 end
             end)
+        end
+
+        function Pair:Unpack()
+            return table.unpack(self:ToTable())
+        end
+
+        function Pair:ToTable()
+            return {self.first, self.second}
         end
     end
 
@@ -713,9 +989,17 @@ do
                 self.second = second
 
                 function self.meta.__bnot()
-                    return values {self.first, self.second}
+                    return values(self:ToTable())
                 end
             end)
+        end
+
+        function KeyValuePair:Unpack()
+            return table.unpack(self:ToTable())
+        end
+
+        function KeyValuePair:ToTable()
+            return {self.first, self.second}
         end
     end
 
@@ -728,9 +1012,17 @@ do
                 self.second = second
 
                 function self.meta.__bnot()
-                    return values {self.first, self.second}
+                    return values(self:ToTable())
                 end
             end)
+        end
+
+        function StrictPair:Unpack()
+            return table.unpack(self:ToTable())
+        end
+
+        function StrictPair:ToTable()
+            return {self.first, self.second}
         end
     end
 
@@ -743,25 +1035,82 @@ do
                 self.second = second
 
                 function self.meta.__bnot()
-                    return values {self.first, self.second}
+                    return values(self:ToTable())
                 end
             end)
+        end
+
+        function StrictKeyValuePair:Unpack()
+            return table.unpack(self:ToTable())
+        end
+
+        function StrictKeyValuePair:ToTable()
+            return {self.first, self.second}
         end
     end
 
     local Set = class "Set" do
-        function Set.new()
+        function Set.new(base)
             return constructor(Set, function(self)
-                self.cache = {}
+                self.cache = base or {}
+
+                function self.meta.__tostring()
+                    return self:ToString()
+                end
+
+                function self.meta.__len()
+                    return self:Size()
+                end
 
                 function self.meta.__bnot()
                     return self:Values()
+                end
+
+                function self.meta.__band(_, set)
+                    return self:Union(set)
+                end
+
+                function self.meta.__bor(_, set)
+                    return self:Intersect(set)
                 end
             end)
         end
 
         local function SetAlreadyContains(value)
             throw(Error("Set already contains value '" + tostring(value) + "'"))
+        end
+
+        function Set:Unpack()
+            return table.unpack(self.cache)
+        end
+
+        function Set:Intersect(set)
+            local res = Set(self.cache)
+            for i in self:Indices() do
+                res.cache[i] = set:At(i)
+            end
+            return res
+        end
+
+        function Set:Union(set)
+            local res = Set(self.cache)
+            for v in ~set do
+                res:Add(v)
+            end
+            return res
+        end
+
+        function Set:Slice(start, finish)
+            finish = finish or #self
+            local res = Set()
+            for i = start, finish do
+                res:Add(self:At(i))
+            end
+            return res
+        end
+
+        function Set:At(idx)
+            return self.cache[idx]
         end
 
         function Set:Has(value)
@@ -1757,6 +2106,7 @@ do
         Queue = Queue;
         Deque = Deque;
         Set = Set;
+        Function = Function;
 
         Stream = Stream;
     

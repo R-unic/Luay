@@ -1,5 +1,5 @@
-using(std)
-using(util)
+using(luay.std)
+using(luay.util)
 
 function main()
     

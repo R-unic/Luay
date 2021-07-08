@@ -29,49 +29,50 @@ function namespace(name) end;
 
 function singleton(name) end;
 
----@class std
-std = {
-    endl = "\n";
-    repr = function(v, level) end;
-    printf = function(msg, ...) end;
+luay = {
+    std = {
+        endl = "\n";
+        repr = function(v, level) end;
+        printf = function(msg, ...) end;
 
-    String = {};
-    Vector = {};
-    List = {};
-    Map = {};
-    Stack = {};
-    EventEmitter = {};
-    Error = {};
-    
-    Stream = {
-        Stream = {};
-        Readable = {};
-        ReadableState = {}
+        String = {};
+        Vector = {};
+        List = {};
+        Map = {};
+        Stack = {};
+        EventEmitter = {};
+        Error = {};
+        
+        Stream = {
+            Stream = {};
+            Readable = {};
+            ReadableState = {}
+        };
+        
+        stdin = {};
+        stdout = {};
     };
-    
-    stdin = {};
-    stdout = {};
-}
 
-util = {
-    ---@param fn function
-    ---@param self any
-    ---@vararg ...
-    ---@return function
-    bind = function(fn, self, ...) 
-        return function(self) end 
-    end;
-}
+    util = {
+        ---@param fn function
+        ---@param self any
+        ---@vararg ...
+        ---@return function
+        bind = function(fn, self, ...) 
+            return function(self) end 
+        end;
+    };
 
-Process = {
-    ---@return integer
-    MemoryUsage = function() end;
-    ---@return integer
-    RSS = function() end;
-    ---@type integer
-    argc = {};
-    argv = {};
-    env = {
-        LUAY_ENV = "production"
+    Process = {
+        ---@return integer
+        MemoryUsage = function() end;
+        ---@return integer
+        RSS = function() end;
+        ---@type integer
+        argc = {};
+        argv = {};
+        env = {
+            LUAY_ENV = "production"
+        }
     }
 }

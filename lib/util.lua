@@ -1,31 +1,4 @@
-do
-    local function bind(fn, self, ...)
-        assert(fn, "fn is nil")
-        local bindArgsLength = select("#", ...)
-      
-        -- Simple binding, just inserts self (or one arg or any kind)
-        if bindArgsLength == 0 then
-            return function (...)
-                return fn(self, ...)
-            end
-        end
-      
-        -- More complex binding inserts arbitrary number of args into call.
-        local bindArgs = {...}
-        return function (...)
-            local argsLength = select("#", ...)
-            local args = {...}
-            local arguments = {}
-            for i = 1, bindArgsLength do
-                arguments[i] = bindArgs[i]
-            end
-            for i = 1, argsLength do
-                arguments[i + bindArgsLength] = args[i]
-            end
-            return fn(self, table.unpack(arguments, 1, bindArgsLength + argsLength))
-        end
-    end
-    
+do  
     local function isNaN(v)
         return v ~= v
     end

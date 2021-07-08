@@ -39,13 +39,13 @@ end
 
 Luay's standard library can be included in your program by calling
 ```lua
-using(std)
+using(luay.std)
 ```
 
 When calling `using(lib)`, you should always do it at top-level, not in your main function or any other scope.
 Luay's standard library includes standard input and output "streams" (they're just classes with overloaded operators) which you can use to call IO operations with some syntactical sugar. Note that these input/output streams are also stored in the Process library, which is half implemented in C++, half in Luay. This means that `Process.stdout` and `Process.stdin` are aliases for `std.lout` and `std.lin`. Here's a simple example of a program that asks the user a question via the command line to demonstrate standard input:
 ```lua
-using(std)
+using(luay.std)
 
 function askContinue()
     local answer
@@ -77,6 +77,37 @@ function main()
     printf "doing {nextCmd}"
     print "exiting"
 end
+```
+
+## Lambdas
+
+Yes, you read that right. Lambdas are a shorthand way of writing an anonymous function that represents data. For example, say I have a list of numbers. I want to double each value in that list. Normally, you could do it like this in standard Luay:
+```lua
+using(luay.std)
+
+function main()
+    local nums = List {32, 64, 128, 256}
+    local doubled = nums:Map(function(x) 
+        return x * 2 
+    end)
+    repr(doubled) --> {64, 128, 256, 512}
+end
+```
+
+With lambdas, everything becomes much conciser:
+```lua
+using(luay.std)
+
+function main()
+    local nums = List {32, 64, 128, 256}
+    local doubled = nums:Map(lambda "|x| x * 2")
+    repr(doubled) --> {64, 128, 256, 512}
+end
+```
+
+You can also take multiple arguments and return multiple values. However, if you ever wanted to use multiple statements inside of a lambda expression (don't know why you would), you must use ";" as a delimiter between them. For example:
+```lua
+local doubled = nums:Map(lambda "|x| printf 'transforming {x}'; x * 2") --> transforming 32 transforming 64 ...
 ```
 
 ## Notes

@@ -1,3 +1,9 @@
+_G.assert = function(condition, err, lvl)
+    if not condition then
+        error(err, 3 + (lvl or 0))
+    end
+end
+
 --string util
 local mtstr = getmetatable("")
 function mtstr.__add(a, b)
@@ -53,4 +59,8 @@ function values(t)
             return t[i]
         end
     end
+end
+
+function varargs(...)
+    return pairs {...}
 end

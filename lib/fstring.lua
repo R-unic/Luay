@@ -38,7 +38,7 @@ f = {} do
             if fn then
                 return fmt and string.format(fmt, fn()) or tostring(fn() or "")
             else
-                error(err, 0)
+                throw(std.Error(err))
             end         
         end))
     end

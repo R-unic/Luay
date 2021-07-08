@@ -1,4 +1,5 @@
 function using(t)
+    assert(t and type(t) == "table", f"cannot import library of type '{tostring(typeof(t))}'")
     for k, v in pairs(t) do
         _ENV[k] = v
     end
@@ -66,8 +67,6 @@ local function classmeta(cls)
     return { __index = cls }
 end
 
----@param name string
----@return Class
 function class(name)
     return cast(setmetatable({}, {
         __call = function(self, ...)
@@ -110,9 +109,9 @@ function cast(v, t)
     return v
 end
 
-function throw(err, fn)
+function throw(err, level)
     assert(type(err) == "table" and err.message ~= nil, "cannot throw error of type '" + typeof(err) + "', ")
-    error(err.message)
+    error(err.message, 2 + (level or 0))
 end
 
 function enum(name)
@@ -150,4 +149,43 @@ function setfenv(fn, env)
         i = i + 1
     end
     return fn
+end
+
+function lambda(content)
+    assert(typeof(content) == "string", "lambda function converts a string to a function expression")
+    assert(content:Includes("|") and not content:IsBlank(), "malformed lambda")
+
+    local components = content:Trim():Split("|")
+    local body = components:At(1):Trim()
+    local params = luay.std.List() --get empty list, awful
+    if #components == 2 then
+        params = body:Split(",")
+        body = components:At(2):Trim()
+    end
+    
+    local luaString = ""
+    local statements = body:Split(";")
+    for stmt in ~statements do
+        if statements:IndexOf(stmt) == #statements then
+            stmt = "return " + stmt
+        end
+        luaString = luaString + stmt + ";" --semicolon for edge cases
+    end
+
+    return luay.std.Function(function(...)
+        local env = _ENV
+        for i, v in varargs(...) do
+            local name = params:At(i)
+            if name then
+                env[name] = v
+            end
+        end
+
+        local f, err = load(luaString, "lambda", "t", env)
+        if not f then
+            throw(luay.std.Error(err))
+        else
+            return f(...)
+        end
+    end)
 end
