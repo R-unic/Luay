@@ -233,7 +233,7 @@ do
         end
 
         function Function:Bind(selfValue, ...)
-            self.callback = bind(self.callback, selfValue, ...)
+            self.callback = self.callback.Bind and self:Bind(selfValue, ...) or bind(self.callback, selfValue, ...)
             return self
         end
 

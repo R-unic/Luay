@@ -120,7 +120,7 @@ end
 
 function throw(err, level)
     assert(type(err) == "table" and err.message ~= nil, "cannot throw error of type '" + typeof(err) + "', ")
-    error(err.message, 2 + (level or 0))
+    error(colors("%{red}" + err.message), 2 + (level or 0))
 end
 
 function enum(name)

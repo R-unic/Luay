@@ -8,6 +8,7 @@ using namespace std;
 #include <string>
 #include <string.h>
 #include <cstdlib>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <ios>

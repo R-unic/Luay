@@ -111,16 +111,18 @@ int luay_cwd(lua_State *L)
 int luay_wait(lua_State *L)
 {
     lua_Number secs = luaL_checknumber(L, 1);
-    this_thread::sleep_for(chrono::seconds((int)secs));
-    return 0;
+    int time = round(secs * 1000000);
+    this_thread::sleep_for(chrono::microseconds(time));
+    lua_pushnumber(L, secs);
+    return 1;
 }
 
 class Luay
 {
-public:
-    lua_State *L;
-    int argc;
-    char** argv;
+    public:
+        lua_State *L;
+        int argc;
+        char** argv;
 
     Luay(int argc, char** argv)
     {
@@ -213,10 +215,13 @@ public:
     void doLuaFile(string fileName)
     {
         string filePath = this->joinPath(this->cwd(), fileName);
-        ifstream luayPathFile("/home/dawnv/dev/lua-sandbox/luaypath");
-        string luayPath((istreambuf_iterator<char>(luayPathFile)),
-                       (istreambuf_iterator<char>()));;
+        string home(getenv("HOME"));
+        ifstream luayPathFile(home + "/Luay/luaypath");
+        string luayPath(
+            (istreambuf_iterator<char>(luayPathFile)),
+            (istreambuf_iterator<char>()));
 
+        replace(luayPath, "~", home);
         string fullFilePath = this->joinPath(luayPath, fileName);
         string pathStr = fileName == "lib/main.lua" ? fullFilePath : filePath;
         string fileStr = pathStr;

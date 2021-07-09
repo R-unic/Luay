@@ -1,5 +1,9 @@
 # Luay
 
+## Installation
+
+To install Luay, you must first clone the repository. A pre-built binary exists inside of the `bin` folder, and a `build.cmd` file is provided if you want to build Luay. To make sure everything is set up properly, first visit the `luaypath` file in your cloned repository, then set the file's content (defaults to `$HOME/Luay`) to the path of your cloned repository.
+
 ## What's Different From Lua?
 
 Luay contrasts starkly to Lua because it comes with "batteries included". This means there is a plethora of utility that's similar to utility you could find in other languages such as Java or NodeJS.

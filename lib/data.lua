@@ -36,14 +36,16 @@ function mtstr.__index(str, i)
         return sub
     elseif type(old_mtIndex) == "table" then 
         return old_mtIndex[i]
-    else 
+    else if type(old_mtIndex) == nil then
+        return old_mtIndex[i]
+    end
         return old_mtIndex(str, i)
     end
 end
 
 --table util
 function table.inverse(t)
-    assert(type(t) == "table", "cannot inverse table of type '" + type(t) + "'")
+    assert(type(t) == "table", "cannot inverse table of type '" + typeof(t) + "'")
     local r = {}
     for k, v in pairs(t) do
         r[v] = k
@@ -64,3 +66,5 @@ end
 function varargs(...)
     return pairs {...}
 end
+
+colors = require "ansicolors"

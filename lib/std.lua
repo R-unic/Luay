@@ -157,6 +157,12 @@ do
                 VectorTypeError(value, self.type)
             end
         end
+        
+        function Vector:Fill(amount, callback)
+            for i = 1, amount do
+                self:Add((callback or lambda "|i| -> i")(i))
+            end
+        end
 
         function Vector:Filter(predicate)
             local res = Vector(self.type)
