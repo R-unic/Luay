@@ -1,4 +1,4 @@
-using(std)
+using(luay.std)
 
 function askContinue()
     local answer

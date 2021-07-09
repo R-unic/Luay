@@ -38,7 +38,7 @@ f = {} do
             if fn then
                 return fmt and string.format(fmt, fn()) or tostring(fn() or "")
             else
-                throw(std.Error(err))
+                throw(luay.std.Error(err))
             end         
         end))
     end

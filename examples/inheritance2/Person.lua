@@ -6,7 +6,7 @@ Person = class "Person" do
     end
 
     function Person:Sleep()
-        print(f"{self.name} is now sleeping.")
+        printf "{self.name} is now sleeping."
     end
 end
 

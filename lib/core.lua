@@ -173,7 +173,6 @@ function lambda(content)
     end
     
     local luaString = body:Replace("->", "return")
-
     return luay.util.Function(function(...)
         local env = _ENV
         for i, v in varargs(...) do

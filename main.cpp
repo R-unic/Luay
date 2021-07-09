@@ -31,6 +31,25 @@ void memUsage(double& vm_usage, double& resident_set)
    resident_set = rss * page_size_kb;
 }
 
+bool replace(string& str, const string& from, const string& to)
+{
+    size_t start_pos = str.find(from);
+    if(start_pos == string::npos)
+        return false;
+
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+void replaceForPkgPath(string &str)
+{
+    string identifier = "?.lua";
+    replace(str, "main.lua", identifier);
+    replace(str, "Main.lua", identifier);
+    replace(str, "init.lua", identifier);
+    replace(str, "Init.lua", identifier);
+}
+
 int process_exit()
 {
     exit(1);
@@ -193,8 +212,24 @@ public:
 
     void doLuaFile(string fileName)
     {
-        // string cwd = this->cwd();
-        if (luaL_dofile(this->L, fileName.c_str()) != LUA_OK)
+        string filePath = this->joinPath(this->cwd(), fileName);
+        ifstream luayPathFile("/home/dawnv/dev/lua-sandbox/luaypath");
+        string luayPath((istreambuf_iterator<char>(luayPathFile)),
+                       (istreambuf_iterator<char>()));;
+
+        string fullFilePath = this->joinPath(luayPath, fileName);
+        string pathStr = fileName == "lib/main.lua" ? fullFilePath : filePath;
+        string fileStr = pathStr;
+        replaceForPkgPath(pathStr);
+
+        this->doString("package.path = package.path .. ';" + pathStr + "'");
+        if (luaL_dofile(this->L, fileStr.c_str()) != LUA_OK)
+            this->error();
+    }
+
+    void doString(string str)
+    {
+        if (luaL_dostring(this->L, str.c_str()) != LUA_OK)
             this->error();
     }
 

@@ -6,18 +6,18 @@ Luay contrasts starkly to Lua because it comes with "batteries included". This m
 
 ## Kinds of Utilities
 
-Luay includes utilities such as Java's StringBuilder class, Node's EventEmitter class, data structure classes (map, list, stack, vector), and more.
+Luay includes utilities such as Java's StringBuilder class, Node's EventEmitter class, data structure classes (map, list, stack, vector), and more. Also see <a href="#main-method">Main Method</a>.
 
 ## Main Method
 
 Luay brings a feature to Lua that many other programming languages support, the "main" method. A Luay program must have an entry point, so it looks for a global function called "main". If it cannot find "main", it then looks for a global class called "Program", subsequently a "Main" method inside of the "Program" class. If it doesn't find either, the following error is thrown:
-```s
+```
 [Luay] Your program lacks a 'main' function or 'Program' class with 'Main' method, therefore it can not run.
 ```
 
 ## Strings
 
-Strings in Luay support a limited set of standard arithmetic operators. These include: +, unary -, unary ~, ^, and >>.  
+ Strings in Luay support a limited set of standard arithmetic operators to manipulate strings with. These include: +, unary -, unary ~, *, and >>.  
 Here's an example of what each operator does:
 ```lua
 -- concatenation
@@ -115,4 +115,4 @@ local doubled = nums:Map(lambda "|x| printf 'transforming {x}' -> x * 2") --> tr
 
 ## Notes
 
-Luay does not have a REPL yet. You can only execute files. The CLI is currently very buggy, and can only execute files in Luay's installation directory.
+Luay does not have a REPL yet. You can only execute files, and the CLI is currently slightly buggy.

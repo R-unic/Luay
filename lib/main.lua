@@ -1,4 +1,3 @@
-package.path = package.path .. ";lib/?.lua"
 require "data"
 require "core"
 require "util"
