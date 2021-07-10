@@ -11,6 +11,7 @@ function import(module)
     return
 end
 
+--- 
 function singleton(name)
     local body = _ENV[name]
     local lib = body[1]
@@ -18,38 +19,59 @@ function singleton(name)
     mod[name] = lib
     return setmetatable(mod, { 
         __newindex = function(self, k, v)
-            throw(std.Error("Cannot write to singleton"))
+            throw(luay.std.Error("cannot write to singleton"))
         end;
 
         __tostring = function()
-            return f"<singleton '{name}'>"
+            return ("<singleton '%s'>"):format(name);
         end
     })
 end 
 
+--- Creates a namespace
+--- and injects it into
+--- the global scope. An
+--- alias for the namespace
+--- is optional using
+---@see NamespaceDeclaration
+---@param name string
+---@return [[(body: table) -> NamespaceDeclaration]]
 function namespace(name)
+    ---@param body table
     return function(body)
         local state = {name = name}
 
-        local meta = { 
+        ---@meta NamespaceMeta
+        local meta = {
             __newindex = function(self, k, v)
-                throw(std.Error("Cannot write to namespace"))
+                throw(luay.std.Error("cannot write to namespace"))
             end;
 
+            ---@return string
             __tostring = function()
                 return ("<namespace '%s'>"):format(state.name);
             end
         }
 
-        _ENV[name] = setmetatable(body, meta)
+        
+        local namespaceBody = setmetatable(body, meta)
+        _ENV[name] = namespaceBody
+        ---@class NamespaceDeclaration
         return {
-            alias = function(_, alias)
+            --- Sets an alias for the
+            --- namespace when tostring
+            --- is called on it.
+            ---@param self NamespaceDeclaration
+            ---@param alias string
+            alias = function(self, alias)
                 state.name = alias
             end
         }
     end
 end
 
+---@param self table
+---@param instance table
 function extend(self, instance)
     self.__super = instance
     setmetatable(self, {
@@ -76,9 +98,13 @@ local function classmeta(cls)
     return { __index = cls }
 end
 
+---@param name string
 function class(name)
     return cast(setmetatable({}, {
         __call = function(self, ...)
+            if not self.new then
+                throw(luay.std.Error("cannot instantiate static class"), 1)
+            end
             return self.new(...)
         end
     }), name)
@@ -89,40 +115,52 @@ local function instance(classBody)
     return setmetatable({ meta = meta }, meta)
 end
 
+---@param body table
+---@param initializer? function
 function constructor(body, initializer)
     local self = instance(body)
-    initializer(self)
+    ;(initializer or function() end)(self)
     return self
 end
 
+---@deprecated since 7/9/21
+---@param body table
 function defaultConstructor(body)
     return constructor(body, function(self) end)
 end
 
-function typeof(v)
-    if type(v) == "table" and v.__type then
-        return v.__type
+---@param value any
+function typeof(value)
+    if type(value) == "table" and value.__type then
+        return value.__type
     else
-        return type(v)
+        return type(value)
     end
 end
 
-function instanceof(v, t)
-    return typeof(v) == t
+---@param value any
+---@param t type
+function instanceof(value, t)
+    return typeof(value) == t
 end
 
-function cast(v, t)
-    assert(v ~= nil and type(v) == "table", "value to cast is nil or not a table")
+---@param value unknown
+---@param t type
+function cast(value, t)
+    assert(value ~= nil and type(value) == "table", "value to cast is nil or not a table")
     assert(t ~= nil and type(t) == "string", "must provide a valid type to cast to, got: " + type(t))
-    v.__type = t
-    return v
+    value.__type = t
+    return value
 end
 
+---@param err Error
+---@param level integer
 function throw(err, level)
-    assert(type(err) == "table" and err.message ~= nil, "cannot throw error of type '" + typeof(err) + "', ")
+    assert(type(err) == "table" and err.message, "cannot throw error of type '" + typeof(err) + "', ")
     error(colors("%{red}" + err.message), 2 + (level or 0))
 end
 
+---@param name string
 function enum(name)
     return function(body)
         assert(type(body) == "table", "cannot create enum with body of type '" + type(body) + "'")
@@ -130,6 +168,7 @@ function enum(name)
     end
 end
 
+---@param fn function
 function getfenv(fn)
     local i = 1
     while true do
@@ -143,6 +182,8 @@ function getfenv(fn)
     end
 end
 
+---@param fn function
+---@param env table
 function setfenv(fn, env)
     local i = 1
     while true do
@@ -160,6 +201,7 @@ function setfenv(fn, env)
     return fn
 end
 
+---@param content string
 function lambda(content)
     assert(typeof(content) == "string", "lambda function converts a string to a function expression")
     assert(content:Includes("|") and not content:IsBlank(), "malformed lambda")

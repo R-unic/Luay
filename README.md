@@ -14,17 +14,17 @@ Luay includes utilities such as Java's StringBuilder class, Node's EventEmitter 
 
 ## Main Method
 
-Luay brings a feature to Lua that many other programming languages support, the "main" method. A Luay program must have an entry point, so it looks for a global function called "main". If it cannot find "main", it then looks for a global class called "Program", subsequently a "Main" method inside of the "Program" class. If it doesn't find either, the following error is thrown:
+Luay brings a feature to Lua that many other programming languages support, the `main` method. A Luay program must have an entry point, so it looks for a global function called `main`. If it cannot find `main`, it then looks for a global class called `Program`, subsequently a `Main` method inside of the `Program` class. If it doesn't find either, the following error is thrown:
 ```
 [Luay] Your program lacks a 'main' function or 'Program' class with 'Main' method, therefore it can not run.
 ```
 
 ## Strings
 
- Strings in Luay support a limited set of standard arithmetic operators to manipulate strings with. These include: +, unary -, unary ~, *, and >>.  
-Here's an example of what each operator does:
+ Strings in Luay support a limited set of standard arithmetic operators to manipulate strings with. These include: `+`, unary `-`, unary `~`, `*`, and `>>`.  
+Here's what each operator does:
 ```lua
--- concatenation
+-- standard concatenation
 print("hello " + "world") --> hello world
 
 -- reverse concatenation
@@ -41,6 +41,10 @@ for char in ~"hello world" do
     io.write(char) --> hello world
 end
 ```
+
+## Data Structures
+
+Luay's standard library (see <a href="#stdio">StdIO</a>) comes with many data structure classes so you don't have to make them yourself. These include: `Vector<T>`, `List`, `Map`, `Stack`, `Queue`, `Deque`, `Set`, `Pair`, `KeyValuePair`, `StrictPair`, and `StrictKeyValuePair`. Yeah, it's a handful, and more are coming. Each index-value styled data structure can be iterated over using the `~` operator, as seen in <a href="#strings">Strings</a>. Otherwise, most data structures have a :Keys or :Indices method to iterate over keys and values.
 
 ## StdIO
 
@@ -84,6 +88,127 @@ function main()
     printf "doing {nextCmd}"
     print "exiting"
 end
+```
+
+## Object Oriented
+
+Object oriented programming is made easy in Luay using a set of functions to create classes. Since Luay is only an embedded version of Lua, changing the grammar could cause more problems than just incompatibility with <a href="#main-method">Main Methods</a>. Thus, we have these functions in Luay: `class(name: string) -> Class`, `extend(class: Class, super: instanceof Class) -> void`, `constructor(class: Class, body?: function) -> ClassInstance`, and `namespace(name: string) -> ((body: table) -> {alias = (name: string) -> void})`. Here's each one of them in use, to show you the syntax:
+
+1. Single Class
+```lua
+Animal = class "Animal" do
+    function Animal.new(name)
+        return constructor(Animal, function(self)
+            self.name = name
+        end)
+    end
+
+    function Animal:Speak(sound)
+        printf "The {self.name} says: {sound}"
+    end
+end
+
+local dog = Animal("Dog")
+dog:Speak("Woof!") --> The Dog says: Woof!
+```
+
+Now let's make a class for the dog itself.
+
+2. Inheritance
+```lua
+...
+
+Dog = class "Dog" do
+    function Dog.new(breed)
+        extend(Dog, Animal("Dog"))
+        return constructor(Dog, function(self)
+            self.breed = breed
+        end)
+    end
+
+    function Dog:Bark()
+        self:Speak("Woof!")
+    end
+end
+
+local dog2 = Dog("Border Collie")
+dog2:Bark() --> The Dog says: Woof!
+print(dog.breed) --> Border Collie
+```
+
+Onto static classes. Static classes are different than classes with static and regular methods. Static classes contain only static methods and have no constructor. Static classes are different from classes with regular methods and static methods because you can encapsulate state in a static class (in an easier manner). A good example of a static class is the `Program` class that Luay looks for if a `main` function is not found.
+
+3. Static Classes
+```lua
+using(luay.std)
+
+Program = class "Program" do
+    Program.mode = "default"
+
+    function Program:DoOperation()
+        if self.mode == "default" then
+            print "doing things normally..."
+        elseif self.mode == "verbose" then
+            print "doing things LOUDLY..."
+        elseif self.mode == "silent" then
+            print "doing things *quietly*..."
+        else
+            throw(Error(f"Invalid mode: '{self.mode}'"))
+        end
+    end
+
+    function Program:Main(argc, argv)
+        local args = Vector("string", argv)
+        args:Shift()
+
+        if args:First() then
+            self.mode = args:First():lower()
+        end
+
+        self:DoOperation()
+    end
+end
+```
+
+3. Classes with Static and Regular Methods
+```lua
+using(luay.std)
+
+Array = class "Array" do
+    function Array.new()
+        return constructor(Array, function(self)
+            self.cache = {}
+        end)
+    end
+
+    function Array.from(tab)
+        local arr = Array()
+        for v in values(tab) do
+            arr:Add(v)
+        end
+        return arr
+    end 
+
+    function Array:Add(value)
+        table.insert(self.cache, value)
+        return self
+    end
+
+    function Array:Remove(idx)
+        table.remove(self.cache, idx)
+        return self
+    end
+
+    function Array:__repr()
+        repr(self.cache)
+    end
+end
+
+local arr = Array.from {"foo", "bar", "baz"}
+arr:Add("luay")
+repr(arr) --> {"foo", "bar", "baz", "luay"}
+arr:Remove(2)
+repr(arr)--> {"foo", "baz", "luay"}
 ```
 
 ## Lambdas

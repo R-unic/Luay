@@ -95,7 +95,7 @@ do
         elseif data_type == 'nil' then
             io.write('nil')
         else
-            io.write(tostring(data))
+            io.write((not tostring(data) or tostring(data) == "") and "nil" or tostring(data))
         end
     
         if level == 1 or data_type == 'table' then
@@ -1272,7 +1272,7 @@ do
         local Stream = class "Stream" do
             function Stream.new()
                 extend(Stream, EventEmitter())
-                return defaultConstructor(Stream)
+                return constructor(Stream)
             end
     
             function Stream:Pipe(dest, opts)
