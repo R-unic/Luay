@@ -39,28 +39,27 @@ do
     
             local h = 1
             for i, v in iter_func(data) do
-                if has_table or string_keys then
-                    io.write('\n  ')
-                    for j=1, level do
-                        if j > 1 then
-                            io.write('  ')
+                if i ~= "meta" then
+                    if has_table or string_keys then
+                        io.write('\n  ')
+                        for j=1, level do
+                            if j > 1 then
+                                io.write('  ')
+                            end
                         end
                     end
+                    if string_keys then
+                        io.write('[')
+                        repr(i, level + 1)
+                        io.write('] = ')
+                    end
+                    if type(v) == 'table' then
+                        repr(v, level + 1)
+                    else
+                        repr(v, level + 1)
+                    end
+                    h = h + 1
                 end
-                if string_keys then
-                    io.write('[')
-                    repr(i, level + 1)
-                    io.write('] = ')
-                end
-                if type(v) == 'table' then
-                    repr(v, level + 1)
-                else
-                    repr(v, level + 1)
-                end
-                if h < length then
-                    io.write(', ')
-                end
-                h = h + 1
             end
             if has_table or string_keys then
                 io.write('\n')
@@ -70,7 +69,7 @@ do
                     end
                 end
             end
-            io.write('}')
+            io.write('}\n')
         elseif data_type == 'string' then
             io.write("'")
             for char in data:gmatch('.') do
@@ -98,13 +97,11 @@ do
             io.write((not tostring(data) or tostring(data) == "") and "nil" or tostring(data))
         end
     
-        if level == 1 or data_type == 'table' then
-            io.write('\n')
-        end
-    
         io.flush()
     end
     
+    ---@class Error
+    ---@field message string
     local Error = class "Error" do
         function Error.new(message)
             return constructor(Error, function(self)
@@ -113,7 +110,13 @@ do
         end
     end
     
+    ---@class Vector
+    ---@field type type
+    ---@field cache table
     local Vector = class "Vector" do
+        ---@param T type
+        ---@param base table
+        ---@return Vector
         function Vector.new(T, base)
             assert(T and typeof(T) == "string", "cannot create std::Vector with no type")
             return constructor(Vector, function(self)
@@ -156,6 +159,17 @@ do
             if not TypeEquals(value, self.type) then
                 VectorTypeError(value, self.type)
             end
+        end
+
+        function Vector:Join(sep)
+            local res = ""
+            for v in ~self do
+                res = res + v
+                if self:IndexOf(v) ~= #self then
+                    res = res + sep
+                end
+            end
+            return res
         end
         
         function Vector:Fill(amount, callback)
@@ -292,7 +306,10 @@ do
         end
     end
     
+    ---@class List
+    ---@field cache table
     local List = class "List" do
+        ---@param base table
         function List.new(base)
             return constructor(List, function(self)
                 self.cache = base or {}
@@ -333,7 +350,9 @@ do
         end
 
         function List:Shift()
-            self:Remove(self:First())
+            local val = self:First()
+            self:Remove(val)
+            return val
         end
 
         function List:Filter(predicate)
@@ -441,13 +460,24 @@ do
         end
     end
 
+    ---@class String
+    ---@field content? string
     local String = class "String" do
+        ---@param content string
+        ---@return string
         function String.new(content)
             return constructor(String, function(self)
                 self.content = content
             end)
         end
 
+        --- Calls `predicate` for each
+        --- character in the string. If
+        --- `predicate` returns true,
+        --- append the current character
+        --- to the result returned by `:Filter`.
+        ---@param predicate function
+        ---@return string
         function String:Filter(predicate)
             local res = ""
             for i = 1, #self do
@@ -459,6 +489,12 @@ do
             return res
         end
 
+        --- Calls `transform` for each
+        --- character in the string and 
+        --- appends the string returned
+        --- by `transform`.
+        ---@param transform function
+        ---@return string
         function String:Map(transform)
             local res = ""
             for i = 1, #self do
@@ -467,6 +503,9 @@ do
             return res
         end
 
+        --- Trims a string from leading
+        --- and trailing whitespaces.
+        ---@return string
         function String:Trim()
             local s = self:GetContent()
             local _, i1 = s:find("^%s*")
@@ -474,16 +513,29 @@ do
             return self[{i1 + 1;i2 - 1}]
         end
     
+        --- Returns itself
+        ---@return string
         function String:GetContent()
             return self.content or self
         end
 
+        --- Capitalizes the first
+        --- character of the string
+        --- and returns the result.
+        ---@return string
         function String:CapitalizeFirst()
             local first = self[1]
             local rest = self[{2;#self}]
             return first:upper() + rest
         end
 
+
+        --- Returns an iterator that
+        --- returns each character of
+        --- the string. Use the unary `~`
+        --- operator on a string as
+        --- an alias for this method.
+        ---@return function
         function String:Chars()
             local i = 0
             return function()
@@ -494,8 +546,13 @@ do
             end
         end
 
+        --- Splits a string into a
+        --- `List` of strings, each
+        --- element delimited by `sep`.
+        ---@param sep string
+        ---@return List
         function String:Split(sep)
-            local res = List()
+            local res = Vector("string")
             if not sep then
                 for c in ~self do
                     res:Add(c)
@@ -508,70 +565,126 @@ do
             return res
         end
 
+        --- Returns a tuple of
+        --- each character inside
+        --- of the string.
+        ---@return ...
         function String:Unpack()
-            local charList = List()
+            local charList = Vector("string")
             for c in ~self do
                 charList:Add(c)
             end
             return charList:Unpack()
         end
 
-        function String:Occurences(sub)
-            return select(2, self:gsub(sub, sub))
-        end
-
+        --- Replaces each occurence of 
+        --- `content` with `replacement` 
+        --- and returns the result.
+        ---@param content string
+        ---@param replacement string
+        ---@return string
         function String:Replace(content, replacement)
-            local res = self:GetContent():gsub(content, replacement)
-            return res
+            return self:GetContent():gsub(content, replacement)
         end
 
+        --- Returns true if there are
+        --- any occurences of `sub`
+        --- inside of the string,
+        --- false otherwise.
+        ---@param sub string
+        ---@return boolean
         function String:Includes(sub)
             return self:GetContent():find(sub) and true or false
         end
 
+        --- Returns true if the string
+        --- is a valid e-mail address,
+        --- false otherwise.
+        ---@return boolean
         function String:IsEmail()
             return self:GetContent():match("[A-Za-z0-9%.%%%+%-%_]+@[A-Za-z0-9%.%%%+%-%_]+%.%w%w%w?%w?") ~= nil
         end
 
+        --- Returns true if each character
+        --- in the string is uppercase, false 
+        --- otherwise.
+        ---@return boolean
         function String:IsUpper()
             return not self:GetContent():find("%l")
         end
 
+        --- Returns true if each character
+        --- in the string is lowercase, false 
+        --- otherwise.
+        ---@return boolean
         function String:IsLower()
             return not self:GetContent():find("%u")
         end
 
+        --- Returns true if each character
+        --- in the string is a whitespace 
+        --- (\n, \r, \t, and space), false 
+        --- otherwise.
+        ---@return boolean
         function String:IsBlank()
             return not self:IsAlphaNumeric() and self:Includes("%s+") or self == ""
         end
 
+        ---@return boolean
         String.IsEmpty = String.IsBlank
+        ---@return boolean
         String.IsWhite = String.IsBlank
 
+        --- Returns true if each character
+        --- in the string is a letter, false 
+        --- otherwise.
+        ---@return boolean
         function String:IsAlpha()
             return self:GetContent():find("%A")
         end
 
+        --- Returns true if the string is
+        --- a valid number, false otherwise.
+        ---@return boolean
         function String:IsNumeric()
             return tonumber(self:GetContent()) and true or false
         end
 
+        ---@return boolean
         String.IsDigit = String.IsNumeric
 
+        --- Returns true if each character
+        --- in the string is a letter or 
+        --- the string is a valid number, 
+        --- false otherwise.
+        ---@return boolean
         function String:IsAlphaNumeric()
             return self:IsAlpha() or self:IsNumeric()
         end
 
+        ---@return boolean
         String.IsAlphaNum = String.IsAlphaNumeric
 
-        function String:Surround(wrap)
+        --- Returns a new string enclosed in 
+        --- `wrap` repeated `repetitions` times.
+        ---@param wrap string
+        ---@param repetitions? integer
+        ---@return string
+        function String:Surround(wrap, repetitions)
+            wrap = tostring(wrap):rep(repetitions or 1)
             return wrap + self:GetContent() + wrap
         end
 
+        --- Encloses a string in quotation marks
+        ---@return string
         function String:Quote()
-            return ("%q"):format(self:GetContent())
+            return self:GetContent():Wrap('"')
         end
     
+        --- Returns the character at the 
+        --- position `idx` in the string.
+        ---@param idx integer
+        ---@return string
         function String:CharAt(idx)
             return self:GetContent()[idx]
         end
@@ -579,7 +692,10 @@ do
     
     setmetatable(string, { __index = String })
     
+    ---@class Stack
+    ---@field cache table
     local Stack = class "Stack" do
+        ---@param base table
         function Stack.new(base)
             return constructor(Stack, function(self)
                 self.cache = base or {}
@@ -655,7 +771,14 @@ do
         end
     end
     
+    ---@class Map
+    ---@field K type
+    ---@field V type
+    ---@field cache table
     local Map = class "Map" do
+        ---@param K type
+        ---@param V type
+        ---@param cache table
         function Map.new(K, V, base)
             assert(K and typeof(K) == "string", "Map must have key type")
             assert(V and typeof(V) == "string", "Map must have value type")
@@ -752,7 +875,10 @@ do
         end
     end
 
+    ---@class Map
+    ---@field cache table
     local Queue = class "Queue" do
+        ---@field base table
         function Queue.new(base)
             return constructor(Queue, function(self)
                 self.cache = base or {}
@@ -796,16 +922,26 @@ do
             return res
         end
 
+        function Queue:First()
+            return self:At(1)
+        end
+
+        function Queue:Last()
+            return self:At(#self)
+        end
+
         function Queue:At(idx)
             return self.cache[idx]
         end
 
-        function Queue:Add(value)
+        function Queue:Enqueue(value)
             table.insert(self.cache, value)
         end
     
-        function Queue:Remove()
-            table.remove(self.cache, #self.cache)
+        function Queue:Dequeue()
+            local v = self:First()
+            table.remove(self.cache, 1)
+            return v
         end
 
         function Queue:Indices()
@@ -833,9 +969,12 @@ do
         end
     end
 
+    ---@class Deque
+    ---@field cache table
     local Deque = class "Deque" do
-        function Deque.new()
-            extend(Deque, Queue.new())
+        ---@param base table
+        function Deque.new(base)
+            extend(Deque, Queue.new(base))
             return constructor(Deque, function(self)
                 function self.meta.__tostring()
                     return self:ToString()
@@ -909,6 +1048,9 @@ do
         end
     end
 
+    ---@class Pair
+    ---@field first any
+    ---@field second any
     local Pair = class "Pair" do
         function Pair.new(first, second)
             return constructor(Pair, function(self)
@@ -930,6 +1072,9 @@ do
         end
     end
 
+    ---@class KeyValuePair
+    ---@field first string
+    ---@field second any
     local KeyValuePair = class "KeyValuePair" do
         function KeyValuePair.new(first, second)
             assert(typeof(first) == "string", "key in KeyValuePair must be a string")
@@ -952,6 +1097,12 @@ do
         end
     end
 
+
+    ---@class StrictPair
+    ---@field T1 type
+    ---@field T2 type
+    ---@field first T1
+    ---@field second T2
     local StrictPair = class "StrictPair" do
         function StrictPair.new(T1, T2, first, second)
             assert(typeof(first) == T1, "first value in StrictPair must be of type '" + T1 + "'")
@@ -975,6 +1126,10 @@ do
         end
     end
 
+    ---@class StrictKeyValuePair
+    ---@field V type
+    ---@field first string
+    ---@field second V
     local StrictKeyValuePair = class "StrictKeyValuePair" do
         function StrictKeyValuePair.new(V, first, second)
             assert(typeof(first) == "string", "key in StrictKeyValuePair must be a string")
@@ -998,7 +1153,10 @@ do
         end
     end
 
+    ---@class Set
+    ---@field cache table
     local Set = class "Set" do
+        ---@param base table
         function Set.new(base)
             return constructor(Set, function(self)
                 self.cache = base or {}
@@ -1149,14 +1307,220 @@ do
             repr(self.cache)
         end
     end
+
+    ---@class LinkedNode
+    ---@field value any
+    ---@field next? LinkedNode
+    local LinkedNode = class "LinkedNode" do
+        ---@param value any
+        ---@return LinkedNode
+        function LinkedNode.new(value)
+            return constructor(LinkedNode, function(self)
+                self.value = value
+                self.next = nil
+
+                function self.meta.__tostring()
+                    return self:ToString()
+                end
+            end)
+        end
+
+        function LinkedNode:Next()
+            return self.next
+        end
+
+        function LinkedNode:ToString()
+            return ("LinkedNode( value=%s next=%s )"):format(self.value, self.next)
+        end
+    end
+
+    ---@class LinkedList
+    ---@field root? LinkedNode
+    local LinkedList = class "LinkedList" do
+        ---@return LinkedList
+        function LinkedList.new()
+            return constructor(LinkedList, function(self)
+                self.root = nil
+
+                function self.meta.__len()
+                    return self:Size()
+                end
+
+                function self.meta.__tostring()
+                    return self:ToString()
+                end
+
+                function self.meta.__bnot()
+                    return self:Nodes()
+                end
+            end)
+        end
+
+        function LinkedList:Remove(value)
+            local parent
+            for node in ~self do
+                if node.value == value then
+                    if parent == nil then
+                        self.root = nil
+                    else
+                        parent.next = nil
+                    end
+                end
+                parent = node
+            end
+        end
+
+        function LinkedList:GetNodes()
+            local nodes = Vector("LinkedNode")
+            local current = self.root
+
+            while true do
+                if current ~= nil then
+                    nodes:Add(current)
+                    current = current:Next()
+                else
+                    break
+                end
+            end
+
+            return nodes
+        end
+
+        function LinkedList:Nodes()
+            return self:GetNodes():Values()
+        end
+
+        function LinkedList:ForEach(callback)
+            local nodes = self:GetNodes()
+            for node in ~nodes do
+                callback(node)
+            end
+        end
+
+        ---@param value any
+        ---@return LinkedList
+        function LinkedList:Add(value)
+            if self.root == nil then
+                self.root = LinkedNode(value, nil)
+            else
+                local current = self.root
+                local node = current
+                while true do
+                    current = current:Next()
+                    if current == nil then
+                        break
+                    else
+                        node = current
+                    end
+                end
+                node.next = LinkedNode(value, nil)
+            end
+            return self
+        end
+
+        ---@return LinkedNode
+        function LinkedList:Next()
+            return self.root
+        end
+
+        ---@return integer
+        function LinkedList:Size()
+            local size = 1
+            local current
+            while true do
+                if self.root == nil then
+                    break
+                else
+                    current = (current or self.root):Next()
+                    if current ~= nil then
+                        size = size + 1
+                    else
+                        break
+                    end
+                end
+            end
+            return size
+        end
+
+        ---@return string
+        function LinkedList:ToString()
+            return ("LinkedList( size=%s root=%s )"):format(#self, self.root)
+        end
+
+        ---@return void
+        function LinkedList:__repr()
+            repr(self.root)
+        end
+    end
+
+    local MultiMap = class "MultiMap" do
+        function MultiMap.new(K, V)
+            return constructor(MultiMap, function(self)
+                self.cache = {}
+                self.K = K
+                self.V = V
+            end)
+        end
+
+        local function TypeEquals(value, expected)
+            if typeof(value) == expected then
+                return true
+            end
+            return false
+        end
     
+        local function MapTypeError(value, expected)
+            throw(Error(("MultiMapTypeError: \n\tgot: %s\n\texpected: %s"):format(typeof(value), expected)), 2)
+        end
+        
+        local function AssertType(value, expected)
+            if not TypeEquals(value, expected) then
+                MapTypeError(value, expected)
+            end
+        end
+
+        function MultiMap:Delete(key)
+            AssertType(key, self.K)
+            self.cache[key] = nil
+            return self
+        end
+
+        ---@return Vector
+        function MultiMap:Get(key)
+            AssertType(key, self.K)
+            return self.cache[key]
+        end
+
+        function MultiMap:Set(key, ...)
+            AssertType(key, self.K)
+            if self.cache[key] == nil then
+                self.cache[key] = Vector(self.V)
+            end
+
+            for v in varargs(...) do
+                AssertType(v, self.V)
+                self.cache[key]:Add(v)
+            end
+            return self
+        end
+
+        function MultiMap:__repr()
+            repr(self.cache)
+        end
+    end
+    
+    ---@class EventEmitter
+    ---@field listeners Map
     local EventEmitter = class "EventEmitter" do
+        ---@return EventEmitter
         function EventEmitter.new()
             return constructor(EventEmitter, function(self)
                 self.listeners = Map("string", "Vector")
             end)
         end
 
+        ---@param event string
+        ---@return Vector
         function EventEmitter:GetListener(event)
             local callbacks = self.listeners:Get(event)
             if not callbacks then
@@ -1166,20 +1530,31 @@ do
             return self.listeners:Get(event)
         end
 
+        ---@param event string
+        ---@return integer
         function EventEmitter:ListenerCount(event)
             return #self:GetListener(event)
         end
     
+        ---@param event string
+        ---@param callback function
+        ---@return EventEmitter
         function EventEmitter:AddListener(event, callback)
             self:GetListener(event):Add(callback)
             return self
         end
     
+        ---@param event string
+        ---@param callback function
+        ---@return EventEmitter
         function EventEmitter:RemoveListener(event, callback)
             self:GetListener(event):Remove(callback)
             return self
         end
     
+        ---@param event string
+        ---@vararg ...
+        ---@return EventEmitter
         function EventEmitter:Emit(event, ...)
             local callbacks = self:GetListener(event)
             for callback in ~callbacks do
@@ -1188,10 +1563,16 @@ do
             return self
         end
     
+        ---@param event string
+        ---@param callback function
+        ---@return EventEmitter
         function EventEmitter:On(event, callback)
             return self:AddListener(event, callback)
         end
     
+        ---@param event string
+        ---@param callback function
+        ---@return EventEmitter
         function EventEmitter:Once(event, callback)
             local function doOnce(...)
                 callback(...)
@@ -1200,10 +1581,14 @@ do
             return self:On(event, doOnce)
         end
     
-        function EventEmitter:Off(event, callbackThread)
-            return self:RemoveListener(event, callbackThread)
+        ---@param event string
+        ---@param callback function
+        ---@return EventEmitter
+        function EventEmitter:Off(event, callback)
+            return self:RemoveListener(event, callback)
         end
 
+        ---@return void
         function EventEmitter:Destroy()
             self.listeners = nil
             self.meta.__index = function()
@@ -1216,6 +1601,8 @@ do
         end
     end
 
+    ---@param fn function
+    ---@vararg ...
     function spawn(fn, ...)
         local e = EventEmitter()
         e:Once("callFn", fn)
@@ -1223,7 +1610,9 @@ do
         e:Destroy()
     end
 
+    ---@class Input
     local Input = class "Input" do
+        ---@return Input
         function Input.new()
             return constructor(Input, function(self)
                 function self.meta.__shr(_, prompt)
@@ -1239,7 +1628,9 @@ do
         end
     end
 
+    ---@class Output
     local Output = class "Output" do
+        ---@return Output
         function Output.new()
             return constructor(Output, function(self)
                 function self.meta.__shl(output, content)
@@ -1254,14 +1645,14 @@ do
         end
     end
 
-    local lout = Output();
-    local lin = Input();
-    
+    local lout = Output()
+    local lin = Input()
     do
         extend(Process, EventEmitter())
         Process.stdout = lout
         Process.stdin = lin
 
+        ---@param code? integer
         function Process:Exit(code)
             self:Emit("exit", code or 1)
             throw(Error(""))
@@ -1635,7 +2026,7 @@ do
                     state.pipesCount = 0
                     state.flowing = false
 
-                    for i in util.range(1, len, 1) do
+                    for i in luay.util.range(1, len, 1) do
                         dests[i]:Emit("unpipe", self)
                     end
 
@@ -1741,7 +2132,7 @@ do
 
                 local events = {"error", "close", "destroy", "resume", "pause"}
                 for v in values(events) do
-                    stream:On(v, util.bind(self.Emit, self, v))
+                    stream:On(v, luay.util.bind(self.Emit, self, v))
                 end
 
                 self._Read = function()
@@ -1781,7 +2172,7 @@ do
                     else
                         local tmp = {}
                         local c = 0
-                        for i in util.range(1, len(list), 1) do
+                        for i in luay.util.range(1, len(list), 1) do
                             if n - c >= len(list[1]) then
                                 c = c + list[1]
                                 table.insert(tmp, table.remove(list, 1))
@@ -1998,7 +2389,7 @@ do
                     end
                 end
 
-                if util.isNaN(n) or not n then
+                if luay.util.isNaN(n) or not n then
                     if state.flowing and len(state.buffer) > 0 then
                         return len(state.buffer[1])
                     else
@@ -2055,6 +2446,9 @@ do
         Queue = Queue;
         Deque = Deque;
         Set = Set;
+        LinkedList = LinkedList;
+        LinkedNode = LinkedNode;
+        MultiMap = MultiMap;
 
         stream = stream;
     

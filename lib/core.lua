@@ -8,10 +8,10 @@ end
 function import(module)
     local data = require(module)
     using(data)
-    return
 end
 
---- 
+---@param name string
+---@return table
 function singleton(name)
     local body = _ENV[name]
     local lib = body[1]
@@ -46,7 +46,6 @@ function namespace(name)
             __newindex = function(self, k, v)
                 throw(luay.std.Error("cannot write to namespace"))
             end;
-
             ---@return string
             __tostring = function()
                 return ("<namespace '%s'>"):format(state.name);
@@ -120,6 +119,7 @@ end
 function constructor(body, initializer)
     local self = instance(body)
     ;(initializer or function() end)(self)
+    self.meta.__metatable = {}
     return self
 end
 
@@ -158,6 +158,14 @@ end
 function throw(err, level)
     assert(type(err) == "table" and err.message, "cannot throw error of type '" + typeof(err) + "', ")
     error(colors("%{red}" + err.message), 2 + (level or 0))
+end
+
+---@param message string
+---@vararg ...
+---@return void
+function warn(message, ...)
+    local args = luay.std.Vector("string", {message, ...})
+    print(args:Map(lambda "|m| -> colors('%{yellow}' + m)"):Join("\t"))
 end
 
 ---@param name string
@@ -202,10 +210,12 @@ function setfenv(fn, env)
 end
 
 ---@param content string
+---@return Function
 function lambda(content)
     assert(typeof(content) == "string", "lambda function converts a string to a function expression")
     assert(content:Includes("|") and not content:IsBlank(), "malformed lambda")
 
+    local env = _ENV
     local components = content:Trim():Split("|")
     local body = components:At(1):Trim()
     local params = luay.std.List()
@@ -216,8 +226,7 @@ function lambda(content)
     
     local luaString = body:Replace("->", "return")
     return luay.util.Function(function(...)
-        local env = _ENV
-        for i, v in varargs(...) do
+        for i, v in pairs {...} do
             local name = params:At(i)
             if name then
                 env[name] = v

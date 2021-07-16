@@ -36,6 +36,17 @@ print(-"abcdefg") --> gfedcba
 -- repeat
 print("xyz" * 4) --> xyzxyzxyzxyz
 
+-- split
+luay.util.repr("foo.bar.baz.luay" / ".") --> {"foo", "bar", "baz", "luay"}
+
+-- character indexing
+local str = "abc"
+print(str[2]) --> b
+
+-- substrings
+local str = "hello world"
+print(str[{1;5}]) --> hello
+
 -- iteration
 for char in ~"hello world" do
     io.write(char) --> hello world
@@ -92,7 +103,7 @@ end
 
 ## Object Oriented
 
-Object oriented programming is made easy in Luay using a set of functions to create classes. Since Luay is only an embedded version of Lua, changing the grammar could cause more problems than just incompatibility with <a href="#main-method">Main Methods</a>. Thus, we have these functions in Luay: `class(name: string) -> Class`, `extend(class: Class, super: instanceof Class) -> void`, `constructor(class: Class, body?: function) -> ClassInstance`, and `namespace(name: string) -> ((body: table) -> {alias = (name: string) -> void})`. Here's each one of them in use, to show you the syntax:
+Object oriented programming is made easy in Luay using a set of functions to create classes. Since Luay is only an embedded version of Lua, changing the grammar could cause more problems than just incompatibility with <a href="#main-method">Main Methods</a>. Thus, we have these functions in Luay: `class(name: string) -> Class`, `extend(class: Class, super: instanceof Class) -> void`, `constructor(class: Class, body?: function) -> ClassInstance`, `namespace(name: string) -> (body: table) -> {alias = (name: string) -> void}`, and `singleton(name: string)`. Here's each one of them in use, to show you the syntax:
 
 1. Single Class
 ```lua
@@ -173,6 +184,7 @@ end
 3. Classes with Static and Regular Methods
 ```lua
 using(luay.std)
+using(luay.util)
 
 Array = class "Array" do
     function Array.new()
@@ -187,7 +199,7 @@ Array = class "Array" do
             arr:Add(v)
         end
         return arr
-    end 
+    end
 
     function Array:Add(value)
         table.insert(self.cache, value)
@@ -209,6 +221,41 @@ arr:Add("luay")
 repr(arr) --> {"foo", "bar", "baz", "luay"}
 arr:Remove(2)
 repr(arr)--> {"foo", "baz", "luay"}
+```
+
+4. Namespace Binding
+```lua
+...
+
+namespace "MyStuff" {
+    Animal = Animal;
+    Dog = Dog;
+    Array = Array;
+}
+
+local arr = MyStuff.Array()
+arr:Add("foo")
+repr(arr) --> {"foo"}
+```
+
+## Function Unions
+
+Using the `luay.util` namespace, you can utilize the `+` operator to create a union of two or more functions. Obviously you can't use the operator on the normal `function` type, as that would require magic. However, you can easily create a new `Function` using `luay::util::Function`. Here's an example that's not so practical, but is certainly cool:
+```lua
+using(luay.util)
+
+function main()
+    local half = Function(function(x)
+        return x / 2
+    end)
+
+    local double = Function(function(x)
+        return x * 2
+    end)
+
+    local halfAndDouble = half + double
+    print(halfAndDouble(10)) --> 5  20
+end
 ```
 
 ## Lambdas

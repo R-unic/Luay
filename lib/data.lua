@@ -1,3 +1,7 @@
+---@param condition any
+---@param err string
+---@param lvl integer
+---@return void
 _G.assert = function(condition, err, lvl)
     if not condition then
         error(err, 3 + (lvl or 0))
@@ -6,27 +10,51 @@ end
 
 --string util
 local mtstr = getmetatable("")
+---@param a string
+---@param b string
+---@return string
 function mtstr.__add(a, b)
     return a .. b
 end
 
+---@param a string
+---@param b string
+---@return string
 function mtstr.__shr(a, b)
     return b .. a
 end
 
+---@param a string
+---@return function
 function mtstr.__bnot(a)
     return a:Chars()
 end
 
+---@param a string
+---@param b string
+---@return string
 function mtstr.__mul(a, b)
     return a:rep(b)
 end
 
+---@param a string
+---@param b string
+---@return string
 function mtstr.__unm(a, b)
     return a:reverse()
 end
 
+---@param a string
+---@param b string
+---@return Vector
+function mtstr.__div(a, b)
+    return a:Split(b)
+end
+
 local old_mtIndex = mtstr.__index
+---@param str string
+---@param i integer | table
+---@return string
 function mtstr.__index(str, i)
     if type(i) == "number" then
         local char = str:sub(i, i)
@@ -44,6 +72,8 @@ function mtstr.__index(str, i)
 end
 
 --table util
+---@param t table
+---@return table
 function table.inverse(t)
     assert(type(t) == "table", "cannot inverse table of type '" + typeof(t) + "'")
     local r = {}
@@ -53,8 +83,11 @@ function table.inverse(t)
     return r
 end
 
+---@param t table
+---@return function
 function values(t)
     local i = 0
+    ---@return any
     return function()
         i = i + 1
         if i <= #t then
@@ -63,8 +96,10 @@ function values(t)
     end
 end
 
+---@vararg ...
+---@return function
 function varargs(...)
-    return pairs {...}
+    return values {...}
 end
 
 colors = require "ansicolors"

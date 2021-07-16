@@ -329,7 +329,7 @@ int main(int argc, char** argv)
     Luay luay(argc, argv);
 
     char* fileDir = luay.argv[1];
-    if (luay.argc < 1 || luay.argc > 2)
+    if (luay.argc < 1)
     {
         puts("Usage: luay <file>\n");
         return 0;

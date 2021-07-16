@@ -1,3 +1,5 @@
+---@alias void nil
+
 require "data"
 require "core"
 require "util"
