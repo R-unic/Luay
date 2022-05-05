@@ -1,4 +1,8 @@
 do
+<<<<<<< HEAD
+=======
+    ---@return void
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     local function repr(data, level)
         if not level then
             level = 1
@@ -103,6 +107,10 @@ do
     ---@class Error
     ---@field message string
     local Error = class "Error" do
+<<<<<<< HEAD
+=======
+        ---@param message string
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function Error.new(message)
             return constructor(Error, function(self)
                 self.message = message or "std::Error thrown!"
@@ -110,7 +118,11 @@ do
         end
     end
     
+<<<<<<< HEAD
     ---@class Vector
+=======
+    ---@class Vector<T>: { [number]: T }
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     ---@field type type
     ---@field cache table
     local Vector = class "Vector" do
@@ -135,6 +147,10 @@ do
                     return self:Values()
                 end
 
+<<<<<<< HEAD
+=======
+                ---@return Vector
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                 function self.meta.__band(_, vec)
                     return self:Union(vec)
                 end
@@ -202,9 +218,17 @@ do
             return self.cache[idx]
         end
 
+<<<<<<< HEAD
         function Vector:Union(vec)
             assert(
                 TypeEquals(vec, "Vector") and vec.type == "string",
+=======
+        ---@param vec Vector
+        ---@return Vector
+        function Vector:Union(vec)
+            assert(
+                TypeEquals(vec, "Vector") and vec.type == self.type,
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                 "expected to merge Vector<" + self.type + ">"
             )
 
@@ -460,6 +484,7 @@ do
         end
     end
 
+<<<<<<< HEAD
     ---@class String
     ---@field content? string
     local String = class "String" do
@@ -468,6 +493,16 @@ do
         function String.new(content)
             return constructor(String, function(self)
                 self.content = content
+=======
+    ---@class String : string
+    ---@field content? string
+    local String = class "String" do
+        ---@param content string
+        ---@return String
+        function String.new(content)
+            return constructor(String, function(self)
+                self.content = content or ""
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             end)
         end
 
@@ -477,7 +512,11 @@ do
         --- append the current character
         --- to the result returned by `:Filter`.
         ---@param predicate function
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:Filter(predicate)
             local res = ""
             for i = 1, #self do
@@ -494,7 +533,11 @@ do
         --- appends the string returned
         --- by `transform`.
         ---@param transform function
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:Map(transform)
             local res = ""
             for i = 1, #self do
@@ -505,7 +548,11 @@ do
 
         --- Trims a string from leading
         --- and trailing whitespaces.
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:Trim()
             local s = self:GetContent()
             local _, i1 = s:find("^%s*")
@@ -514,7 +561,11 @@ do
         end
     
         --- Returns itself
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:GetContent()
             return self.content or self
         end
@@ -522,7 +573,11 @@ do
         --- Capitalizes the first
         --- character of the string
         --- and returns the result.
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:CapitalizeFirst()
             local first = self[1]
             local rest = self[{2;#self}]
@@ -582,7 +637,11 @@ do
         --- and returns the result.
         ---@param content string
         ---@param replacement string
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:Replace(content, replacement)
             return self:GetContent():gsub(content, replacement)
         end
@@ -669,14 +728,23 @@ do
         --- `wrap` repeated `repetitions` times.
         ---@param wrap string
         ---@param repetitions? integer
+<<<<<<< HEAD
         ---@return string
         function String:Surround(wrap, repetitions)
+=======
+        ---@return String
+        function String:Wrap(wrap, repetitions)
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             wrap = tostring(wrap):rep(repetitions or 1)
             return wrap + self:GetContent() + wrap
         end
 
         --- Encloses a string in quotation marks
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:Quote()
             return self:GetContent():Wrap('"')
         end
@@ -684,7 +752,11 @@ do
         --- Returns the character at the 
         --- position `idx` in the string.
         ---@param idx integer
+<<<<<<< HEAD
         ---@return string
+=======
+        ---@return String
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function String:CharAt(idx)
             return self:GetContent()[idx]
         end
@@ -765,6 +837,13 @@ do
         function Stack:ToString()
             return ("Stack( size=%s )"):format(self:Size())
         end
+<<<<<<< HEAD
+=======
+
+        function Stack:ToTable()
+            return self.cache
+        end
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     
         function Stack:__repr()
             repr(self.cache)
@@ -778,7 +857,11 @@ do
     local Map = class "Map" do
         ---@param K type
         ---@param V type
+<<<<<<< HEAD
         ---@param cache table
+=======
+        ---@param base table
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function Map.new(K, V, base)
             assert(K and typeof(K) == "string", "Map must have key type")
             assert(V and typeof(V) == "string", "Map must have value type")
@@ -875,10 +958,17 @@ do
         end
     end
 
+<<<<<<< HEAD
     ---@class Map
     ---@field cache table
     local Queue = class "Queue" do
         ---@field base table
+=======
+    ---@class Queue
+    ---@field cache table
+    local Queue = class "Queue" do
+        ---@param base table
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function Queue.new(base)
             return constructor(Queue, function(self)
                 self.cache = base or {}
@@ -915,7 +1005,11 @@ do
 
         function Queue:Slice(start, finish)
             finish = finish or #self
+<<<<<<< HEAD
             local res = Queue(self.type)
+=======
+            local res = Queue()
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             for i = start, finish do
                 res:Add(self:At(i))
             end
@@ -1016,11 +1110,21 @@ do
         end
 
         function Deque:AddLast(value)
+<<<<<<< HEAD
             self:Add(value)
         end
 
         function Deque:RemoveLast()
             self:Remove()
+=======
+            table.insert(self.cache, value)
+        end
+    
+        function Deque:RemoveLast()
+            local idx = #self.cache
+            local element = self.cache[idx]
+            table.remove(self.cache, idx)
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         end
 
         function Deque:Indices()
@@ -1098,12 +1202,25 @@ do
     end
 
 
+<<<<<<< HEAD
     ---@class StrictPair
     ---@field T1 type
     ---@field T2 type
     ---@field first T1
     ---@field second T2
     local StrictPair = class "StrictPair" do
+=======
+    ---@class StrictPair<T1, T2>
+    ---@field T1 type
+    ---@field T2 type
+    ---@field first `T1`
+    ---@field second `T2`
+    local StrictPair = class "StrictPair" do
+        ---@param T1 type
+        ---@param T2 type
+        ---@param first `T1`
+        ---@param second `T2`
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function StrictPair.new(T1, T2, first, second)
             assert(typeof(first) == T1, "first value in StrictPair must be of type '" + T1 + "'")
             assert(typeof(second) == T2, "second value in StrictPair must be of type '" + T2 + "'")
@@ -1126,7 +1243,11 @@ do
         end
     end
 
+<<<<<<< HEAD
     ---@class StrictKeyValuePair
+=======
+    ---@class StrictKeyValuePair<V>
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     ---@field V type
     ---@field first string
     ---@field second V
@@ -1406,7 +1527,13 @@ do
                 local current = self.root
                 local node = current
                 while true do
+<<<<<<< HEAD
                     current = current:Next()
+=======
+                    if current then
+                        current = current:Next()
+                    end
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                     if current == nil then
                         break
                     else
@@ -1453,7 +1580,17 @@ do
         end
     end
 
+<<<<<<< HEAD
     local MultiMap = class "MultiMap" do
+=======
+    ---@class MultiMap<K, V>: { [K]: V }
+    ---@field cache table
+    ---@field K type
+    ---@field V type
+    local MultiMap = class "MultiMap" do
+        ---@param K type
+        ---@param V type
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         function MultiMap.new(K, V)
             return constructor(MultiMap, function(self)
                 self.cache = {}
@@ -1509,7 +1646,11 @@ do
         end
     end
     
+<<<<<<< HEAD
     ---@class EventEmitter
+=======
+    ---@class EventEmitter : Class
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     ---@field listeners Map
     local EventEmitter = class "EventEmitter" do
         ---@return EventEmitter
@@ -1588,6 +1729,10 @@ do
             return self:RemoveListener(event, callback)
         end
 
+<<<<<<< HEAD
+=======
+        ---@param self ClassInstance
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         ---@return void
         function EventEmitter:Destroy()
             self.listeners = nil
@@ -1610,11 +1755,19 @@ do
         e:Destroy()
     end
 
+<<<<<<< HEAD
     ---@class Input
     local Input = class "Input" do
         ---@return Input
         function Input.new()
             return constructor(Input, function(self)
+=======
+    ---@class Input : Class
+    local Input = class "Input" do
+        ---@return Input
+        function Input.new()
+            return Input:constructor(function(self)
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                 function self.meta.__shr(_, prompt)
                     io.write(prompt)
                     io.flush()
@@ -1658,6 +1811,7 @@ do
             throw(Error(""))
         end
     end
+<<<<<<< HEAD
 
     do
         local Stream = class "Stream" do
@@ -2435,6 +2589,29 @@ do
         } : alias "std::stream"
     end
     
+=======
+    
+    ---@class std
+    ---@field String String
+    ---@field EventEmitter EventEmitter
+    ---@field Error Error
+    ---@field Vector Vector
+    ---@field List List
+    ---@field Stack Stack
+    ---@field Map Map
+    ---@field Queue Queue
+    ---@field Deque Deque
+    ---@field Set Set
+    ---@field LinkedList LinkedList
+    ---@field LinkedNode LinkedNode
+    ---@field MultiMap MultiMap
+    ---@field lout Output
+    ---@field lin Input
+    ---@field endl string
+    ---@field repr fun(data: any, level: number): void
+    ---@field printf fun(str: string): void
+    std = {}
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     namespace "std" {
         String = String;
         EventEmitter = EventEmitter;
@@ -2450,8 +2627,11 @@ do
         LinkedNode = LinkedNode;
         MultiMap = MultiMap;
 
+<<<<<<< HEAD
         stream = stream;
     
+=======
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         repr = repr;
     
         lout = lout;
@@ -2462,6 +2642,9 @@ do
             print(f(str))
         end;
     }
+<<<<<<< HEAD
 
     _ENV.Stream = nil
+=======
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 end

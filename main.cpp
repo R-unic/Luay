@@ -56,6 +56,7 @@ int process_exit()
     return 0;
 }
 
+<<<<<<< HEAD
 int process_memoryUsage(lua_State *L)
 {
     double vm, rss;
@@ -71,6 +72,23 @@ int process_rss(lua_State *L)
     lua_pushnumber(L, rss);
     return 1;
 }
+=======
+// int process_memoryUsage(lua_State *L)
+// {
+//     double vm, rss;
+//     memUsage(vm, rss);
+//     lua_pushnumber(L, vm);
+//     return 1;
+// }
+
+// int process_rss(lua_State *L)
+// {
+//     double vm, rss;
+//     memUsage(vm, rss);
+//     lua_pushnumber(L, rss);
+//     return 1;
+// }
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 
 static void stackDump (lua_State *L)
 {
@@ -177,25 +195,54 @@ class Luay
         lua_close(this->L);
     }
 
+<<<<<<< HEAD
     void openLibs()
     {
         const struct luaL_Reg ProcessLib[] = {
             {"MemoryUsage", process_memoryUsage},
             {"RSS", process_rss}
         };
+=======
+    void openLibs(string fileName)
+    {
+        // const struct luaL_Reg ProcessLib[] = {
+        //     {"MemoryUsage", process_memoryUsage},
+        //     {"RSS", process_rss}
+        // };
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 
         this->table();
         this->pushProcessEnv();
         this->pushProcessArgs();
+<<<<<<< HEAD
         luaL_setfuncs(this->L, ProcessLib, 0);
         lua_setglobal(this->L, "Process");
         
+=======
+        // luaL_setfuncs(this->L, ProcessLib, 0);
+        lua_setglobal(this->L, "Process");
+         
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         lua_pushcfunction(this->L, luay_cwd);
         lua_setglobal(this->L, "cwd");
 
         luay_cwd(this->L);
         lua_setglobal(this->L, "__dirname");
 
+<<<<<<< HEAD
+=======
+        string filePath = this->joinPath(this->cwd(), fileName);
+        string home(getenv("HOME"));
+        ifstream luayPathFile(home + "/Luay/luaypath");
+        string luayPath(
+            (istreambuf_iterator<char>(luayPathFile)),
+            (istreambuf_iterator<char>()));
+
+        replace(luayPath, "~", home);
+        lua_pushstring(this->L, luayPath.c_str());
+        lua_setglobal(this->L, "__luaypath");
+
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         lua_pushcfunction(this->L, luay_wait);
         lua_setglobal(this->L, "wait");
 
@@ -293,7 +340,11 @@ class Luay
     void pushProcessArgs()
     {
         // {<process>}
+<<<<<<< HEAD
         lua_pushliteral(this->L, "argc");
+=======
+        lua_pushliteral(this->L, "argc"); // {<process>}, "argc"
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         lua_pushinteger(this->L, this->argc);
         this->setTable();
 
@@ -328,16 +379,26 @@ int main(int argc, char** argv)
 {
     Luay luay(argc, argv);
 
+<<<<<<< HEAD
     char* fileDir = luay.argv[1];
     if (luay.argc < 1)
+=======
+    if (luay.argc <= 1)
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     {
         puts("Usage: luay <file>\n");
         return 0;
     }
     else
     {
+<<<<<<< HEAD
         luay.openDefaultLibs();
         luay.openLibs();
+=======
+        char* fileDir = luay.argv[1];
+        luay.openDefaultLibs();
+        luay.openLibs(fileDir);
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         luay.doFile(fileDir);
     }
 

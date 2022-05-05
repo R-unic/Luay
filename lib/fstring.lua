@@ -36,9 +36,15 @@ f = {} do
             end })
             local fn, err = load("return "..code, "expression `"..code.."`", "t", exp_env)
             if fn then
+<<<<<<< HEAD
                 return fmt and string.format(fmt, fn()) or tostring(fn() or "")
             else
                 throw(luay.std.Error(err))
+=======
+                return fmt and fmt:format(fn()) or tostring(fn() or "")
+            else
+                throw(std.Error(err))
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             end         
         end))
     end

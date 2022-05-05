@@ -6,7 +6,11 @@ To install Luay, you must first clone the repository. A pre-built binary exists 
 
 ## What's Different From Lua?
 
+<<<<<<< HEAD
 Luay contrasts starkly to Lua because it comes with "batteries included". This means there is a plethora of utility that's similar to utility you could find in other languages such as Java or NodeJS.
+=======
+Luay is basically just a much more scalable version of Lua. It contrasts to Lua because it comes with "batteries included", meaing there's a built-in set of utility similar to the likes of  other languages such as Java, C#, or NodeJS.
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 
 ## Kinds of Utilities
 

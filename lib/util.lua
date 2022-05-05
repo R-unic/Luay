@@ -58,7 +58,11 @@ do
     ---@class StringBuilder
     local StringBuilder = class "StringBuilder" do
         local AssertString
+<<<<<<< HEAD
         ---@param originalContent
+=======
+        ---@param originalContent string
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         ---@return StringBuilder
         function StringBuilder.new(originalContent)
             return constructor(StringBuilder, function(self)
@@ -93,7 +97,11 @@ do
         ---@return StringBuilder
         function StringBuilder:AppendLine(str)
             str = str or ""
+<<<<<<< HEAD
             return self:Append(str + luay.std.endl)
+=======
+            return self:Append(str + std.endl)
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         end
 
         ---@param str string
@@ -108,7 +116,11 @@ do
         ---@return StringBuilder
         function StringBuilder:PrependLine(str)
             str = str or ""
+<<<<<<< HEAD
             return self:Prepend(str + luay.std.endl)
+=======
+            return self:Prepend(str + std.endl)
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         end
 
         ---@return string
@@ -136,7 +148,11 @@ do
                 :Append("<" + name)
 
             if attributes then
+<<<<<<< HEAD
                 for attr in ~luay.std.Vector("string", attributes) do
+=======
+                for attr in ~std.Vector("string", attributes) do
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                     tag:Append(" " + attr)
                 end
             end
@@ -145,7 +161,11 @@ do
 
         ---@param name string
         ---@param content string
+<<<<<<< HEAD
         ---@param attributes table
+=======
+        ---@param attributes Vector
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         ---@return string
         local function htmlTag(name, content, attributes)
             assert(typeof(name) == "string", "expected tag name to be string")
@@ -161,7 +181,11 @@ do
             end
             return tostring(
                 tag
+<<<<<<< HEAD
                     :Append(">" + content or "")
+=======
+                    :Append(">" + (content or ""))
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                     :Append(arrows("/" + name))
             )
         end
@@ -183,7 +207,11 @@ do
         end
 
         function HTML:A(link, content, attributes)
+<<<<<<< HEAD
             local fullAttributes = luay.std.Vector.new("string", {f'href="{link}"'})
+=======
+            local fullAttributes = std.Vector.new("string", {f'href="{link}"'})
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             if attributes then
                 fullAttributes = fullAttributes & attributes
             end
@@ -250,7 +278,11 @@ do
         ---@param iconPath string
         ---@param attributes table
         function HTML:FavIconLink(iconPath, attributes)
+<<<<<<< HEAD
             local fullAttributes = luay.std.Vector.new("string", {'rel="icon"', ('href="%s"'):format(iconPath)})
+=======
+            local fullAttributes = std.Vector.new("string", {'rel="icon"', ('href="%s"'):format(iconPath)})
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             if attributes then
                 fullAttributes = fullAttributes & attributes
             end
@@ -260,7 +292,11 @@ do
         ---@param cssPath string
         ---@param attributes table
         function HTML:StylesheetLink(cssPath, attributes)
+<<<<<<< HEAD
             local fullAttributes = luay.std.Vector.new("string", {'rel="stylesheet"', ('href="%s"'):format(cssPath)})
+=======
+            local fullAttributes = std.Vector.new("string", {'rel="stylesheet"', ('href="%s"'):format(cssPath)})
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             if attributes then
                 fullAttributes = fullAttributes & attributes
             end
@@ -358,7 +394,11 @@ do
                     ---@vararg ...
                     ---@return ...
                     return function(...)
+<<<<<<< HEAD
                         local res = luay.std.List()
+=======
+                        local res = std.List()
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                         for v in varargs(first(...))  do
                             res:Add(v)
                         end
@@ -377,7 +417,13 @@ do
 
                 ---@return string
                 function self.meta.__tostring()
+<<<<<<< HEAD
                     return tostring(self.callback):CapitalizeFirst()
+=======
+                    ---@type String
+                    local str = tostring(self.callback)
+                    return str:CapitalizeFirst()
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
                 end
             end)
         end
@@ -432,7 +478,11 @@ do
         ---@return Event
         function Event.new()
             return constructor(Event, function(self)
+<<<<<<< HEAD
                 self.listeners = luay.std.Vector("function")
+=======
+                self.listeners = std.Vector("function")
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             end)
         end
 
@@ -452,13 +502,32 @@ do
         end
     end
 
+<<<<<<< HEAD
+=======
+    ---@class util
+    ---@field StringBuilder StringBuilder
+    ---@field HTML HTML
+    ---@field Function Function
+    ---@field Event Event
+    ---@field isNaN fun(v: any): boolean
+    ---@field range fun(from: number, to: number, step: number): function
+    ---@field bind fun(fn: function, self: table, ...: any): function
+    util = {}
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     namespace "util" {
         StringBuilder = StringBuilder;
         HTML = HTML;
         Function = Function;
         Event = Event;
+<<<<<<< HEAD
 
         isNaN = isNaN;
         range = range;
+=======
+        
+        isNaN = isNaN;
+        range = range;
+        bind = bind;
+>>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     }
 end
