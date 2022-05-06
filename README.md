@@ -6,11 +6,9 @@ To install Luay, you must first clone the repository. A pre-built binary exists 
 
 ## What's Different From Lua?
 
-<<<<<<< HEAD
 Luay contrasts starkly to Lua because it comes with "batteries included". This means there is a plethora of utility that's similar to utility you could find in other languages such as Java or NodeJS.
 =======
 Luay is basically just a much more scalable version of Lua. It contrasts to Lua because it comes with "batteries included", meaing there's a built-in set of utility similar to the likes of  other languages such as Java, C#, or NodeJS.
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 
 ## Kinds of Utilities
 
@@ -41,7 +39,7 @@ print(-"abcdefg") --> gfedcba
 print("xyz" * 4) --> xyzxyzxyzxyz
 
 -- split
-luay.util.repr("foo.bar.baz.luay" / ".") --> {"foo", "bar", "baz", "luay"}
+std.repr("foo.bar.baz.luay" / ".") --> {"foo", "bar", "baz", "luay"}
 
 -- character indexing
 local str = "abc"
@@ -65,13 +63,14 @@ Luay's standard library (see <a href="#stdio">StdIO</a>) comes with many data st
 
 Luay's standard library can be included in your program by calling
 ```lua
-using(luay.std)
+using(std)
 ```
+(or just referencing it as "std")
 
 When calling `using(lib)`, you should always do it at top-level, not in your main function or any other scope.
 Luay's standard library includes standard input and output "streams" (they're just classes with overloaded operators) which you can use to call IO operations with some syntactical sugar. Note that these input/output streams are also stored in the Process library, which is half implemented in C++, half in Luay. This means that `Process.stdout` and `Process.stdin` are aliases for `std.lout` and `std.lin`. Here's a simple example of a program that asks the user a question via the command line to demonstrate standard input:
 ```lua
-using(luay.std)
+using(std)
 
 function askContinue()
     local answer
@@ -144,18 +143,22 @@ Dog = class "Dog" do
     function Dog:Bark()
         self:Speak("Woof!")
     end
+    
+    function Dog:ToString()
+        return ("<Dog: breed=\"%s\">"):format(self.breed)
+    end
 end
 
 local dog2 = Dog("Border Collie")
 dog2:Bark() --> The Dog says: Woof!
-print(dog.breed) --> Border Collie
+print(dog) --> <Dog: breed="Border Collie">
 ```
 
 Onto static classes. Static classes are different than classes with static and regular methods. Static classes contain only static methods and have no constructor. Static classes are different from classes with regular methods and static methods because you can encapsulate state in a static class (in an easier manner). A good example of a static class is the `Program` class that Luay looks for if a `main` function is not found.
 
 3. Static Classes
 ```lua
-using(luay.std)
+using(std)
 
 Program = class "Program" do
     Program.mode = "default"
@@ -187,8 +190,8 @@ end
 
 3. Classes with Static and Regular Methods
 ```lua
-using(luay.std)
-using(luay.util)
+using(std)
+using(util)
 
 Array = class "Array" do
     function Array.new()
@@ -238,15 +241,15 @@ namespace "MyStuff" {
 }
 
 local arr = MyStuff.Array()
-arr:Add("foo")
-repr(arr) --> {"foo"}
+arr:Add(Dog("Husky"))
+repr(arr) --> {<Dog: breed="Husky">}
 ```
 
-## Function Unions
+## Function Unions + NodeJS methods
 
-Using the `luay.util` namespace, you can utilize the `+` operator to create a union of two or more functions. Obviously you can't use the operator on the normal `function` type, as that would require magic. However, you can easily create a new `Function` using `luay::util::Function`. Here's an example that's not so practical, but is certainly cool:
+Using the `util` namespace, you can utilize the `+` operator to create a union of two or more functions. Obviously you can't use the operator on the normal `function` type, as that would require magic. However, you can easily create a new `Function` using `util::Function`. Here's an example that's not so practical, but is certainly cool:
 ```lua
-using(luay.util)
+using(util)
 
 function main()
     local half = Function(function(x)
@@ -266,7 +269,7 @@ end
 
 Yes, you read that right. Lambdas are a shorthand way of writing an anonymous function that represents data. For example, say I have a list of numbers. I want to double each value in that list. Normally, you could do it like this in standard Luay:
 ```lua
-using(luay.std)
+using(std)
 
 function main()
     local nums = List {32, 64, 128, 256}
@@ -279,7 +282,7 @@ end
 
 With lambdas, everything becomes much conciser:
 ```lua
-using(luay.std)
+using(std)
 
 function main()
     local nums = List {32, 64, 128, 256}
@@ -295,4 +298,5 @@ local doubled = nums:Map(lambda "|x| printf 'transforming {x}' -> x * 2") --> tr
 
 ## Notes
 
-Luay does not have a REPL yet. You can only execute files, and the CLI is currently slightly buggy.
+Luay does not have a REPL yet, you can only execute files.
+Stay tuned for more updates. Working on making this repo a little more active.
