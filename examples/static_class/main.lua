@@ -1,5 +1,3 @@
-using(luay.std)
-
 import "Greeter"
 
 Program = class "Program" do

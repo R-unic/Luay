@@ -1,9 +1,7 @@
-using(luay.std)
-
 function askContinue()
     local answer
     while answer ~= "y" and answer ~= "n" do
-        answer = lin >> "continue with this operation (y/n)? "
+        answer = std.lin >> "continue with this operation (y/n)? "
     end
 
     if answer == "y" then
@@ -13,20 +11,22 @@ function askContinue()
     end
 end
 
+function ask(question)
+    local response
+    while not response or response:IsBlank() do
+        response = std.lin >> question + "\n"
+    end
+    return response
+end
+
 function main()
-    local cmd
-    while not cmd or cmd:IsBlank() do
-        cmd = lin >> "What do you want to do?\n"
-    end
+    local cmd = ask("What do you want to do?")
     askContinue()
 
-    local nextCmd
-    while not nextCmd or nextCmd:IsBlank() do
-        nextCmd = lin >> "What do you want to do now?\n"
-    end
+    local nextCmd = ask("What do you want to do now?")
     askContinue()
 
-    printf "doing {cmd}"
-    printf "doing {nextCmd}"
+    printf "{cmd}ing"
+    printf "{nextCmd}ing"
     print "exiting"
 end

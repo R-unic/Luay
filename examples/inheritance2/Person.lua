@@ -1,6 +1,7 @@
+---@class Person : Class
 Person = class "Person" do
     function Person.new(name)
-        return constructor(Person, function(self)
+        return Person:constructor(function(self)
             self.name = name
         end)
     end

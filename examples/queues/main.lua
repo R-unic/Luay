@@ -1,7 +1,6 @@
-using(luay.std)
 
 function main()
-    local q = Queue()
+    local q = std.Queue.new()
     q:Enqueue("lil uzi vert")
     q:Enqueue("j cole")
     q:Enqueue("smokepurpp")

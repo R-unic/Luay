@@ -1,8 +1,186 @@
-<<<<<<< HEAD
-=======
+Inf = math.huge
+
+---@diagnostic disable-next-line: duplicate-doc-alias
+---@alias void nil
+
+function printf(str)
+    print(f(str))
+end;
+
+---@return number
+function tick()
+    return os.time(os.date("*t"))
+end
+
+---@param n number
+---@return boolean
+function isFinite(n)
+    return n ~= Inf
+end
+
+---@param v any
+---@return boolean
+function isNaN(v)
+    return v ~= v
+end
+
+---@return void
+function repr(data, level)
+    if not level then
+        level = 1
+    end
+
+    local data_type = type(data)
+
+    if data_type == 'table' then
+        if level == nil then
+            level = 1
+        end
+
+        if data.__repr ~= nil then
+            return data:__repr()
+        end
+
+        local length = 0
+        local has_table = false
+        local string_keys = false
+        for i, v in pairs(data) do
+            if type(v) == 'table' then
+                has_table = true
+            end
+            if type(i) ~= 'number' then
+                string_keys = true
+            end
+            length = length + 1
+        end
+
+        io.write('{')
+
+        local iter_func = nil
+        if string_keys then
+            iter_func = pairs
+        else
+            iter_func = ipairs
+        end
+
+        local h = 1
+        for i, v in iter_func(data) do
+            if i ~= "meta" then
+                if has_table or string_keys then
+                    io.write('\n  ')
+                    for j=1, level do
+                        if j > 1 then
+                            io.write('  ')
+                        end
+                    end
+                end
+                if string_keys then
+                    io.write('[')
+                    repr(i, level + 1)
+                    io.write('] = ')
+                end
+                if type(v) == 'table' then
+                    repr(v, level + 1)
+                else
+                    repr(v, level + 1)
+                end
+                h = h + 1
+            end
+        end
+        if has_table or string_keys then
+            io.write('\n')
+            for j=1, level do
+                if j > 1 then
+                    io.write('  ')
+                end
+            end
+        end
+        io.write('}\n')
+    elseif data_type == 'string' then
+        io.write("'")
+        for char in data:gmatch('.') do
+            local num = string.byte(char)
+            if (num >= 0 and num <= 8) or num == 11 or num == 12 or (num >= 14 and num <= 31) or num >= 127 then
+                io.write('\\x')
+                io.write(('%02X'):format(num))
+            elseif num == 92 or num == 39 then
+                io.write('\\')
+                io.write(char)
+            elseif num == 9 then
+                io.write('\\t')
+            elseif num == 10 then
+                io.write('\\n')
+            elseif num == 13 then
+                io.write('\\r')
+            else
+                io.write(char)
+            end
+        end
+        io.write("'")
+    elseif data_type == 'nil' then
+        io.write('nil')
+    else
+        io.write((not tostring(data) or tostring(data) == "") and "nil" or tostring(data))
+    end
+
+    io.flush()
+end
+
+---@param from number
+---@param to number
+---@param step number
+---@return function
+---@return nil
+---@return number
+function range(from, to, step)
+    step = step or 1
+    ---@return number
+    return function(_, lastvalue)
+        local nextvalue = lastvalue + step
+        if 
+            step > 0 and 
+            nextvalue <= to or 
+            step < 0 and 
+            nextvalue >= to or
+            step == 0
+        then
+            return nextvalue
+        end
+    end, nil, from - step
+end
+
+---@param fn Function
+---@param self table
+---@param ... any
+---@return Function
+function bind(fn, self, ...)
+    assert(fn, "fn is nil")
+    local bindArgsLength = select("#", ...)
+    
+    -- Simple binding, just inserts self (or one arg or any kind)
+    if bindArgsLength == 0 then
+        return function (...)
+            return fn(self, ...)
+        end
+    end
+    
+    -- More complex binding inserts arbitrary number of args into call.
+    local bindArgs = {...}
+    return function (...)
+        local argsLength = select("#", ...)
+        local args = {...}
+        local arguments = {}
+        for i = 1, bindArgsLength do
+            arguments[i] = bindArgs[i]
+        end
+        for i = 1, argsLength do
+            arguments[i + bindArgsLength] = args[i]
+        end
+        return fn(self, table.unpack(arguments, 1, bindArgsLength + argsLength))
+    end
+end
 
 ---@param t table
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 function using(t)
     assert(t and type(t) == "table", f"cannot import library of type '{tostring(typeof(t))}'")
     for k, v in pairs(t) do
@@ -10,10 +188,7 @@ function using(t)
     end
 end
 
-<<<<<<< HEAD
-=======
 ---@param module string
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 function import(module)
     local data = require(module)
     using(data)
@@ -23,22 +198,40 @@ end
 ---@return table
 function singleton(name)
     local body = _ENV[name]
-    local lib = body[1]
     local mod = {}
-    mod[name] = lib
+    mod[name] = body
     return setmetatable(mod, { 
         __newindex = function(self, k, v)
-<<<<<<< HEAD
-            throw(luay.std.Error("cannot write to singleton"))
-=======
             throw(std.Error("cannot write to singleton"))
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         end;
 
         __tostring = function()
-            return ("<singleton '%s'>"):format(name);
+            return ("<singleton \"%s\">"):format(name);
         end
     })
+end 
+
+--- Only for looks, equivalent to 
+--- just returning a string indexed 
+--- table. Usage: 
+--- ```return module "Animals" {
+---     Dog = Dog;
+---     Cat = Cat;
+--- }```
+---
+---@param name string
+---@return fun(body: table): { Name: string }
+function module(name)
+    ---@param body table
+    ---@return { Name: string }
+    return function(body)
+        return setmetatable(body, {
+            Name = name;
+            __tostring = function(self)
+                return ("<module \"%s\""):format(self.Name)
+            end;
+        })
+    end 
 end 
 
 --- Creates a namespace
@@ -48,30 +241,18 @@ end
 --- is optional using
 ---@see NamespaceDeclaration
 ---@param name string
-<<<<<<< HEAD
----@return [[(body: table) -> NamespaceDeclaration]]
-=======
 ---@return function
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 function namespace(name)
     ---@param body table
     return function(body)
         local state = {name = name}
-<<<<<<< HEAD
-
-        ---@meta NamespaceMeta
-        local meta = {
-            __newindex = function(self, k, v)
-                throw(luay.std.Error("cannot write to namespace"))
-=======
         local meta = {
             __newindex = function(self, k, v)
                 throw(std.Error("cannot write to namespace"))
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
             end;
             ---@return string
             __tostring = function()
-                return ("<namespace '%s'>"):format(state.name);
+                return ("<namespace \"%s\">"):format(state.name);
             end
         }
 
@@ -117,9 +298,6 @@ function extend(self, instance)
 end
 
 local function classmeta(cls)
-<<<<<<< HEAD
-    return { __index = cls }
-=======
     return { 
         __index = cls;
         __tostring = function(self)
@@ -130,7 +308,6 @@ local function classmeta(cls)
             end
         end
     }
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 end
 
 ---@param name string
@@ -138,17 +315,6 @@ function class(name)
     return cast(setmetatable({}, {
         __call = function(self, ...)
             if not self.new then
-<<<<<<< HEAD
-                throw(luay.std.Error("cannot instantiate static class"), 1)
-            end
-            return self.new(...)
-        end
-    }), name)
-end
-
-local function instance(classBody)
-    local meta = classmeta(classBody)
-=======
                 throw(std.Error("cannot instantiate static class"), 1)
             end
             return self.new(...)
@@ -161,19 +327,13 @@ local function instance(classBody)
     local meta = classmeta(classBody)
     ---@class ClassInstance
     ---@field meta table
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     return setmetatable({ meta = meta }, meta)
 end
 
 ---@param body table
----@param initializer? function
 function constructor(body, initializer)
     local self = instance(body)
-<<<<<<< HEAD
-    ;(initializer or function() end)(self)
-=======
     ;(initializer or function(_) end)(self)
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     self.meta.__metatable = {}
     return self
 end
@@ -199,10 +359,6 @@ function instanceof(value, t)
     return typeof(value) == t
 end
 
-<<<<<<< HEAD
----@param value unknown
----@param t type
-=======
 ---@class Class
 local _ = {
     extend = extend;
@@ -212,13 +368,10 @@ local _ = {
 ---@param value unknown
 ---@param t type
 ---@return Class | any
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 function cast(value, t)
     assert(value ~= nil and type(value) == "table", "value to cast is nil or not a table")
     assert(t ~= nil and type(t) == "string", "must provide a valid type to cast to, got: " + type(t))
     value.__type = t
-<<<<<<< HEAD
-=======
     if (
         t ~= "nil" and
         t ~= "number" and
@@ -232,16 +385,11 @@ function cast(value, t)
         value.extend = extend
         value.constructor = constructor
     end
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     return value
 end
 
 ---@param err Error
-<<<<<<< HEAD
----@param level integer
-=======
 ---@param level? integer
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 function throw(err, level)
     assert(type(err) == "table" and err.message, "cannot throw error of type '" + typeof(err) + "', ")
     error(colors("%{red}" + err.message), 2 + (level or 0))
@@ -251,11 +399,7 @@ end
 ---@vararg ...
 ---@return void
 function warn(message, ...)
-<<<<<<< HEAD
-    local args = luay.std.Vector("string", {message, ...})
-=======
     local args = std.Vector("string", {message, ...})
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     print(args:Map(lambda "|m| -> colors('%{yellow}' + m)"):Join("\t"))
 end
 
@@ -300,31 +444,20 @@ function setfenv(fn, env)
     return fn
 end
 
-<<<<<<< HEAD
----@param content string
-=======
+---@param collection table
 function list(collection)
-
     local index = 0
     local count = #collection
-     
-    -- The closure function is returned
-     
-    return function ()
+          
+    return function()
        index = index + 1
-         
-       if index <= count
-       then
-          -- return the current element of the iterator
+       if index <= count then
           return collection[index]
        end
-         
     end
-     
  end
 
 ---@param content String
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
 ---@return Function
 function lambda(content)
     assert(typeof(content) == "string", "lambda function converts a string to a function expression")
@@ -333,22 +466,14 @@ function lambda(content)
     local env = _ENV
     local components = content:Trim():Split("|")
     local body = components:At(1):Trim()
-<<<<<<< HEAD
-    local params = luay.std.List()
-=======
     local params = std.List()
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
     if #components == 2 then
         params = body:Split(",")
         body = components:At(2):Trim()
     end
     
     local luaString = body:Replace("->", "return")
-<<<<<<< HEAD
-    return luay.util.Function(function(...)
-=======
-    return util.Function(function(...)
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
+    return std.Function(function(...)
         for i, v in pairs {...} do
             local name = params:At(i)
             if name then
@@ -358,13 +483,20 @@ function lambda(content)
 
         local f, err = load(luaString, "lambda", "t", env)
         if not f then
-<<<<<<< HEAD
-            throw(luay.std.Error(err))
-=======
             throw(std.Error(err))
->>>>>>> ca8a567 (Removed luay namespace, std and util libraries now in global scope)
         else
             return f(...)
         end
     end)
+end
+
+---@class Error : Class
+---@field message string
+Error = class "Error" do
+    ---@param message string
+    function Error.new(message)
+        return Error:constructor(function(self)
+            self.message = message or "std::Error thrown!"
+        end)
+    end
 end

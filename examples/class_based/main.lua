@@ -1,14 +1,12 @@
-Program = {} do
+Program = class "Program" do
     function Program:SayHello(name)
-        print(f"Hello, {name}!")
+        printf "Hello, {name}!"
     end
 
-    function Program:Main(argc, argv)
-        print(argc)
-        repr(argv)
-        print(process.argc)
-        repr(process.argv)
-        self:SayHello("world")
-        self:SayHello("John")
+    function Program:Main() --argc, argv can be put here too
+        print(Process.argc)
+        repr(Process.argv)
+        self:SayHello "world"
+        self:SayHello "John"
     end
 end

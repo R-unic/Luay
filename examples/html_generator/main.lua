@@ -1,50 +1,49 @@
-using(luay.util)
-
 function main()
-    local line = HTML.Newline
+    ---@type fun(): String
+    local line = lambda "|| -> util.HTML:Newline()"
     
-    HTML:BeginBlock()
+    util.HTML:BeginBlock()
 
-    HTML:BeginBlock()
+    util.HTML:BeginBlock()
     local headContent =
         line() +
-        HTML:StylesheetLink("styles.css") +
+        util.HTML:StylesheetLink("styles.css") +
         line()
-    HTML:EndBlock()
+    util.HTML:EndBlock()
 
-    local head = line() + HTML:Head(headContent)
+    local head = line() + util.HTML:Head(headContent)
 
-    HTML:BeginBlock()
+    util.HTML:BeginBlock()
 
-    HTML:BeginBlock()
+    util.HTML:BeginBlock()
     local formContent = 
         line() +
-        HTML:Input {'type="button"', 'value="Open my Other Document in New Window"', 'onclick="openWindow()"'} + 
+        util.HTML:Input {'type="button"', 'value="Open my Other Document in New Window"', 'onclick="openWindow()"'} + 
         line()
-    HTML:EndBlock()
+    util.HTML:EndBlock()
 
     local bodyContent =
         line() +
-        HTML:H1("My Document") +
+        util.HTML:H1("My Document") +
         line() +
-        HTML:A("https://document.com", "My Other Document") +
+        util.HTML:A("https://document.com", "My Other Document") +
         line() +
-        HTML:P("This document will go over some very important things.") +
+        util.HTML:P("This document will go over some very important things.") +
         line() +
-        HTML:Script([[
+        util.HTML:Script([[
         function openWindow() {
             window.open("https://document.com");
         }
         ]]) +
         line() +
-        HTML:Form(formContent) +
+        util.HTML:Form(formContent) +
         line()
-    HTML:EndBlock()
+    util.HTML:EndBlock()
 
-    local body = line() + HTML:Body(bodyContent)
+    local body = line() + util.HTML:Body(bodyContent)
 
-    HTML:EndBlock()
-    local html = HTML:Html(head + body + line())
+    util.HTML:EndBlock()
+    local html = util.HTML:Html(head + body + line())
 
     print(html)
 end

@@ -24,7 +24,7 @@ function mtstr.__shr(a, b)
     return b .. a
 end
 
----@param a string
+---@param a String
 ---@return function
 function mtstr.__bnot(a)
     return a:Chars()
@@ -44,7 +44,7 @@ function mtstr.__unm(a, b)
     return a:reverse()
 end
 
----@param a string
+---@param a String
 ---@param b string
 ---@return Vector
 function mtstr.__div(a, b)

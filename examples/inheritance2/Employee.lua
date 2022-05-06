@@ -1,9 +1,10 @@
 import "Person"
 
+---@class Employee : Person
 Employee = class "Employee" do
     function Employee.new(name)
-        extend(Employee, Person(name))
-        return constructor(Employee, function(self)
+        Employee:extend(Person.new(name))
+        return Employee:constructor(function(self)
             self.name = name
         end)
     end

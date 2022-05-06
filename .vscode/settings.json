@@ -68,5 +68,8 @@
     },
     "Lua.diagnostics.disable": [
         "lowercase-global"
+    ],
+    "Lua.diagnostics.globals": [
+        "Process"
     ]
 }
