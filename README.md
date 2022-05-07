@@ -104,7 +104,7 @@ end
 
 ## Object Oriented
 
-Object oriented programming is made easy in Luay using a set of functions to create classes. Since Luay is only an embedded version of Lua, changing the grammar could cause more problems than just incompatibility with <a href="#main-method">Main Methods</a>. Thus, we have these functions in Luay: `class(name: string) -> Class`, `extend(class: Class, super: instanceof Class) -> void`, `constructor(class: Class, body?: function) -> ClassInstance`, `namespace(name: string) -> (body: table) -> {alias = (name: string) -> void}`, and `singleton(name: string)`. Here's each one of them in use, to show you the syntax:
+Object oriented programming is made easy in Luay using a set of functions to create classes. Since Luay is only an embedded version of Lua, changing the grammar could cause more problems than just incompatibility with <a href="#main-method">Main Methods</a>. Thus, we have these functions in Luay: `class(name: string) -> Class`, `extend(class: Class, super: instanceof Class) -> void`, `constructor(class: Class, body?: function) -> ClassInstance`, `namespace(name: string) -> (body: table) -> {alias = (name: string) -> void}`, and `singleton(name: string)`. Classes can be instantiated with the pretty standard Lua ``Class.new(params)`` syntax. They can also be instantiated with the Python syntax, aka ``Class(params)`` Here's each one of them in use, to show you the syntax:
 
 1. Single Class
 ```lua
@@ -132,7 +132,7 @@ Now let's make a class for the dog itself.
 
 local Dog = class "Dog" do
     function Dog.new(breed)
-        Dog:extend(Animal("Dog"))
+        Dog:extend(Animal.new("Dog"))
         return Dog:constructor(function(self)
             self.breed = breed
         end)
@@ -151,7 +151,7 @@ local Dog = class "Dog" do
     end
 end
 
-local dog2 = Dog("Border Collie")
+local dog2 = Dog.new("Border Collie")
 dog2:Bark() --> The Dog says: Woof!
 print(dog) --> <Dog: breed="Border Collie">
 ```
@@ -335,11 +335,9 @@ After annotating you can now have complete annotation and even documentation if 
 
 ## Adding Luay Library to Language Server
 
-If you click on the gear icon on the Lua extension in the VS Code extensions tab (Ctrl + Shift + X), you will see a button that says extension settings. After clicking it, in the search bar at the top add "library" to the text already there. It should look like this:
-<img src="https://cdn.discordapp.com/attachments/453342460848898059/972361278091837500/unknown.png" />
+If you click on the gear icon on the Lua extension in the VS Code extensions tab (Ctrl + Shift + X), you will see a button that says extension settings. After clicking it, in the search bar at the top add "library" to the text already there. It should look like this: <img src="https://cdn.discordapp.com/attachments/453342460848898059/972361278091837500/unknown.png" />
 
-After this is done navigate here and click "Add Item":
-<img src="https://cdn.discordapp.com/attachments/453342460848898059/972360702973079592/unknown.png" />
+After this is done navigate here and click "Add Item": <img src="https://cdn.discordapp.com/attachments/453342460848898059/972360702973079592/unknown.png" />
 
 Navigate to the lib folder in your Luay installation and press "Select Folder". Enjoy the code completion and documentation!
 
