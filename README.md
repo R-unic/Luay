@@ -247,7 +247,7 @@ arr:Add(Dog("Husky"))
 repr(arr) --> {<Dog: breed="Husky">}
 ```
 
-## Function Unions + NodeJS methods
+## Function Unions + NodeJS-like classes
 
 Using the `util` namespace, you can utilize the `+` operator to create a union of two or more functions. Obviously you can't use the operator on the normal `function` type, as that would require magic. However, you can easily create a new `Function` using `util::Function`. Here's an example that's not so practical, but is certainly cool:
 ```lua
