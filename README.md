@@ -335,9 +335,13 @@ After annotating you can now have complete annotation and even documentation if 
 
 ## Adding Luay Library to Language Server
 
-If you click on the gear icon on the Lua extension in the VS Code extensions tab (Ctrl + Shift + X), you will see a button that says extension settings. After clicking it, in the search bar at the top add "library" to the text already there. It should look like this: <img src="https://cdn.discordapp.com/attachments/453342460848898059/972361278091837500/unknown.png" />
+If you click on the gear icon on the Lua extension in the VS Code extensions tab (Ctrl + Shift + X), you will see a button that says extension settings. After clicking it, in the search bar at the top add "library" to the text already there. It should look like this:
+<br>
+<img src="https://cdn.discordapp.com/attachments/453342460848898059/972361278091837500/unknown.png" />
 
-After this is done navigate here and click "Add Item": <img src="https://cdn.discordapp.com/attachments/453342460848898059/972360702973079592/unknown.png" />
+After this is done navigate here and click "Add Item": 
+<br>
+<img src="https://cdn.discordapp.com/attachments/453342460848898059/972360702973079592/unknown.png" />
 
 Navigate to the lib folder in your Luay installation and press "Select Folder". Enjoy the code completion and documentation!
 
