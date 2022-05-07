@@ -1,11 +1,41 @@
-Inf = math.huge
-
 ---@diagnostic disable-next-line: duplicate-doc-alias
 ---@alias void nil
 
-function printf(str)
-    print(f(str))
-end;
+Inf = math.huge
+
+---@param t table
+---@param element unknown
+---@return number
+local function indexOf(t, element)
+    local res
+    for i, v in pairs(t) do
+        if v == element then
+            res = i
+            break
+        end
+    end
+    return res
+end
+
+---@param t table
+---@param sep string
+---@return string
+local function join(t, sep)
+    local res = ""
+    for v in list(t) do
+        res = res + v
+        if indexOf(t, v) ~= #t then
+            res = res + sep
+        end
+    end
+    return res
+end
+
+---@vararg string
+function printf(...)
+    local strs = {...}
+    print(f(join(strs, "\t")))
+end
 
 ---@return number
 function tick()

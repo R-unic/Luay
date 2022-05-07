@@ -49,7 +49,9 @@ end
 local lout = Output()
 local lin = Input()
 do
-    extend(Process, Standard.EventEmitter())
+    Process = cast(Process, "Process")
+    Process:extend(Standard.EventEmitter())
+    Process.argv = Lists.Vector.new("string", Process.argv)
     Process.stdout = lout
     Process.stdin = lin
 

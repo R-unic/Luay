@@ -1,4 +1,4 @@
-Program = class "Program" do
+local Program = class "Program" do
     function Program:SayHello(name)
         printf "Hello, {name}!"
     end

@@ -156,10 +156,10 @@ class Luay
         if (lua_isnil(this->L, this->top() - 2)) // if main is nil
         {
             lua_getglobal(this->L, "Program");
-            lua_pushliteral(this->L, "Main");
-            if (lua_isnil(this->L, this->top() - 1)) // if program is nil
+            if (lua_isnil(this->L, this->top())) // if program is nil
                 return this->error("Your program lacks a 'main' function or 'Program' class with 'Main' method, therefore it can not run.");
 
+            lua_pushliteral(this->L, "Main");
             lua_gettable(this->L, this->top() - 1); // Program["Main"]
             lua_getglobal(this->L, "Program"); // self
             this->pushArgs();

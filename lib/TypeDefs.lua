@@ -2,6 +2,9 @@
 ---@field stdout Output
 ---@field stdin Input
 ---@field argc number
----@field argv table<string>
+---@field argv Vector
 ---@field env table
 Process = {}
+
+---@class Program : Class
+Program = {}

@@ -10,7 +10,7 @@ Luay is basically just a much more scalable version of Lua. It contrasts to Lua 
 
 ## Kinds of Utilities
 
-Luay includes utilities such as Java's StringBuilder class, Node's EventEmitter class, data structure classes (map, list, stack, vector), and more. Also see <a href="#main-method">Main Method</a>.
+Luay includes utilities such as Java's StringBuilder class, Node's EventEmitter class, data structure classes (map, list, stack, vector), and much more. Also see <a href="#main-method">Main Method</a>.
 
 ## Main Method
 
@@ -108,9 +108,9 @@ Object oriented programming is made easy in Luay using a set of functions to cre
 
 1. Single Class
 ```lua
-Animal = class "Animal" do
+local Animal = class "Animal" do
     function Animal.new(name)
-        return constructor(Animal, function(self)
+        return Animal:constructor(function(self)
             self.name = name
         end)
     end
@@ -130,16 +130,20 @@ Now let's make a class for the dog itself.
 ```lua
 ...
 
-Dog = class "Dog" do
+local Dog = class "Dog" do
     function Dog.new(breed)
-        extend(Dog, Animal("Dog"))
-        return constructor(Dog, function(self)
+        Dog:extend(Animal("Dog"))
+        return Dog:constructor(function(self)
             self.breed = breed
         end)
     end
 
-    function Dog:Bark()
-        self:Speak("Woof!")
+    function Dog:Feed(food)
+        if food == "steak" then
+            print "Woof! *growl*"
+        else
+            print "*whimper*"
+        end
     end
     
     function Dog:ToString()
@@ -191,7 +195,7 @@ end
 using(std)
 using(util)
 
-Array = class "Array" do
+local Array = class "Array" do
     function Array.new()
         return constructor(Array, function(self)
             self.cache = {}
@@ -294,7 +298,52 @@ You can also take multiple arguments and return multiple values. If you ever wan
 local doubled = nums:Map(lambda "|x| printf 'transforming {x}' -> x * 2") --> transforming 32 transforming 64 ...
 ```
 
+## VS Code Type Safety
+With <a href="https://marketplace.visualstudio.com/items?itemName=sumneko.lua">Sumneko's Language Server</a> you can annotate the types of your classes for much easier code completion. You'll also get a cool identifier highlighting color specifically for classes. Here's one of the example classes I previously used annotated for documentation. Notice as you look at the first line how Dog extends both Animal, and the Class type (provided by the Luay library, see <a href="#adding-luay-library-to-language-server">Adding Luay Library to Language Server</a> for everything below to work). Do note that we'd have to go back to the Animal class and annotate it with `---@class Animal : Class` and it's respective fields for the below annotations for it to function as shown in the pictures below this code block:
+```lua
+---@class Dog : Animal
+---@field breed string
+local Dog = class "Dog" do
+    ---@param breed string
+    ---@return Dog
+    function Dog.new(breed)
+        Dog:extend(Animal.new("Dog"))
+        return Dog:constructor(function(self)
+            self.breed = breed
+        end)
+    end
+
+    ---@param food string
+    function Dog:Feed(food)
+        if food == "steak" then
+            print "Woof! *growl*"
+        else
+            print "*whimper*"
+        end
+    end
+    
+    function Dog:ToString()
+        return ("<Dog: breed=\"%s\">"):format(self.breed)
+    end
+end
+```
+
+After annotating you can now have complete annotation and even documentation if you wanted for all of your classes. This is what it looks like when finished:
+<img src="https://cdn.discordapp.com/attachments/453342460848898059/972365635864637440/unknown.png" />
+<img src="https://cdn.discordapp.com/attachments/453342460848898059/972366124899520552/unknown.png" />
+
+
+## Adding Luay Library to Language Server
+
+If you click on the gear icon on the Lua extension in the VS Code extensions tab (Ctrl + Shift + X), you will see a button that says extension settings. After clicking it, in the search bar at the top add "library" to the text already there. It should look like this:
+<img src="https://cdn.discordapp.com/attachments/453342460848898059/972361278091837500/unknown.png" />
+
+After this is done navigate here and click "Add Item":
+<img src="https://cdn.discordapp.com/attachments/453342460848898059/972360702973079592/unknown.png" />
+
+Navigate to the lib folder in your Luay installation and press "Select Folder". Enjoy the code completion and documentation!
+
 ## Notes
 
-Luay does not have a REPL yet, you can only execute files.
+Luay does not have a REPL (yet), you can only execute files.
 Stay tuned for more updates. Working on making this repo a little more active.

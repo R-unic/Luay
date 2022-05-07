@@ -276,9 +276,12 @@ local List = class "List" do
 
     function List:Join(sep)
         local res = ""
-        self:ForEach(function(v)
-            res = res + tostring(v)
-        end)
+        for v in ~self do
+            res = res + v
+            if self:IndexOf(v) ~= #self then
+                res = res + sep
+            end
+        end
         return res
     end
 
