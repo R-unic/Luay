@@ -202,7 +202,7 @@ class Luay
 
         string filePath = this->joinPath(this->cwd(), fileName);
         string home(getenv("HOME"));
-        ifstream luayPathFile(home + "/Luay/luaypath");
+        ifstream luayPathFile(home + "/Desktop/Dev/Luay/luaypath");
         string luayPath(
             (istreambuf_iterator<char>(luayPathFile)),
             (istreambuf_iterator<char>()));
@@ -236,6 +236,7 @@ class Luay
             (istreambuf_iterator<char>(luayPathFile)),
             (istreambuf_iterator<char>()));
 
+        cout<<luayPath<<endl;
         replace(luayPath, "~", home);
         string fullFilePath = this->joinPath(luayPath, fileName);
         string pathStr = fileName == "lib/main.lua" ? fullFilePath : filePath;

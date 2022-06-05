@@ -4,7 +4,6 @@
 using namespace std;
 
 #include <lua.hpp>
-#include <windows.h>
 #include <string>
 #include <string.h>
 #include <cstdlib>

@@ -1,1 +1,1 @@
-g++ -Wall -g -fpermissive -fconcepts-ts -std=c++14 -pthread main.cpp -llua5.4 -o bin/luay
+g++ -Wall -g -fpermissive -fconcepts-ts -std=c++14 -pthread main.cpp -llua -o bin/luay
