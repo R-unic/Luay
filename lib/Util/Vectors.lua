@@ -1,13 +1,6 @@
----@class Vec2 : Class
----@field zero Vec2
----@field one Vec2
----@field x number
----@field y number
----@field z number
 local Vec2 = class "Vec2" do
     ---@param x? number
     ---@param y? number
-    ---@return Vec2
     function Vec2.new(x, y)
         return Vec2:constructor(function(self)
             self.x = x or 0

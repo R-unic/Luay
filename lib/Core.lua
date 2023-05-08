@@ -1,4 +1,3 @@
----@diagnostic disable-next-line: duplicate-doc-alias
 ---@alias void nil
 
 Inf = math.huge
@@ -31,7 +30,6 @@ local function join(t, sep)
     return res
 end
 
----@vararg string
 function printf(...)
     local strs = {...}
     print(f(join(strs, "\t")))
@@ -167,10 +165,10 @@ function range(from, to, step)
     ---@return number
     return function(_, lastvalue)
         local nextvalue = lastvalue + step
-        if 
-            step > 0 and 
-            nextvalue <= to or 
-            step < 0 and 
+        if
+            step > 0 and
+            nextvalue <= to or
+            step < 0 and
             nextvalue >= to or
             step == 0
         then
@@ -186,14 +184,14 @@ end
 function bind(fn, self, ...)
     assert(fn, "fn is nil")
     local bindArgsLength = select("#", ...)
-    
+
     -- Simple binding, just inserts self (or one arg or any kind)
     if bindArgsLength == 0 then
         return function (...)
             return fn(self, ...)
         end
     end
-    
+
     -- More complex binding inserts arbitrary number of args into call.
     local bindArgs = {...}
     return function (...)
@@ -230,7 +228,7 @@ function singleton(name)
     local body = _ENV[name]
     local mod = {}
     mod[name] = body
-    return setmetatable(mod, { 
+    return setmetatable(mod, {
         __newindex = function(self, k, v)
             throw(std.Error("cannot write to singleton"))
         end;
@@ -239,11 +237,11 @@ function singleton(name)
             return ("<singleton \"%s\">"):format(name);
         end
     })
-end 
+end
 
---- Only for looks, equivalent to 
---- just returning a string indexed 
---- table. Usage: 
+--- Only for looks, equivalent to
+--- just returning a string indexed
+--- table. Usage:
 --- ```return module "Animals" {
 ---     Dog = Dog;
 ---     Cat = Cat;
@@ -261,15 +259,14 @@ function module(name)
                 return ("<module \"%s\""):format(self.Name)
             end;
         })
-    end 
-end 
+    end
+end
 
 --- Creates a namespace
 --- and injects it into
 --- the global scope. An
 --- alias for the namespace
 --- is optional using
----@see NamespaceDeclaration
 ---@param name string
 ---@return function
 function namespace(name)
@@ -286,7 +283,7 @@ function namespace(name)
             end
         }
 
-        
+
         local namespaceBody = setmetatable(body, meta)
         _ENV[name] = namespaceBody
         ---@class NamespaceDeclaration
@@ -323,12 +320,12 @@ function extend(self, instance)
             else
                 return v
             end
-        end 
+        end
     })
 end
 
 local function classmeta(cls)
-    return { 
+    return {
         __index = cls;
         __tostring = function(self)
             if self.ToString then
@@ -352,26 +349,19 @@ function class(name)
     }), name)
 end
 
----@return ClassInstance
+---@return table
 local function instance(classBody)
     local meta = classmeta(classBody)
-    ---@class ClassInstance
-    ---@field meta table
     return setmetatable({ meta = meta }, meta)
 end
 
 ---@param body table
+---@param initializer function
 function constructor(body, initializer)
     local self = instance(body)
     ;(initializer or function(_) end)(self)
     self.meta.__metatable = {}
     return self
-end
-
----@deprecated since 7/9/21
----@param body table
-function defaultConstructor(body)
-    return constructor(body, function(self) end)
 end
 
 ---@param value any
@@ -389,15 +379,14 @@ function instanceof(value, t)
     return typeof(value) == t
 end
 
----@class Class
 local _ = {
     extend = extend;
     constructor = constructor;
 }
 
----@param value unknown
+---@param value table
 ---@param t type
----@return Class | any
+---@return Class<any> | any
 function cast(value, t)
     assert(value ~= nil and type(value) == "table", "value to cast is nil or not a table")
     assert(t ~= nil and type(t) == "string", "must provide a valid type to cast to, got: " + type(t))
@@ -426,7 +415,7 @@ function throw(err, level)
 end
 
 ---@param message string
----@vararg ...
+---@param ... string[]
 ---@return void
 function warn(message, ...)
     local args = std.Vector("string", {message, ...})
@@ -478,7 +467,7 @@ end
 function list(collection)
     local index = 0
     local count = #collection
-          
+
     return function()
        index = index + 1
        if index <= count then
@@ -501,7 +490,7 @@ function lambda(content)
         params = body:Split(",")
         body = components:At(2):Trim()
     end
-    
+
     local luaString = body:Replace("->", "return")
     return std.Function(function(...)
         for i, v in pairs {...} do
@@ -520,8 +509,6 @@ function lambda(content)
     end)
 end
 
----@class Error : Class
----@field message string
 Error = class "Error" do
     ---@param message string
     function Error.new(message)

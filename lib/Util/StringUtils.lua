@@ -1,8 +1,6 @@
----@class StringBuilder
 local StringBuilder = class "StringBuilder" do
     local AssertString
     ---@param originalContent string
-    ---@return StringBuilder
     function StringBuilder.new(originalContent)
         return constructor(StringBuilder, function(self)
             AssertString(originalContent or "")

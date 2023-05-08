@@ -1,0 +1,814 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>Core</strong></li>
+  <li><a href="../modules/PrimalDataUtility.html">PrimalDataUtility</a></li>
+  <li><a href="../modules/StringUtils.html">StringUtils</a></li>
+  <li><a href="../modules/Vectors.html">Vectors</a></li>
+  <li><a href="../modules/main.html">main</a></li>
+  <li><a href="../modules/ListTypes.html">ListTypes</a></li>
+  <li><a href="../modules/StandardTypes.html">StandardTypes</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>Core</code></h1>
+<p></p>
+<p> nil</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#tick">tick ()</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isFinite">isFinite (n)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isNaN">isNaN (v)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#repr">repr (data, level)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#range">range (from, to, step)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#bind">bind (fn, self, ...)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#using">using (t)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#import">import (module)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#singleton">singleton (name)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#module">module (name)</a></td>
+	<td class="summary">Only for looks, equivalent to
+ just returning a string indexed
+ table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#namespace">namespace (name)</a></td>
+	<td class="summary">Creates a namespace
+ and injects it into
+ the global scope.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#__tostring">__tostring ()</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#extend">extend (self, instance)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#class">class (name)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#constructor">constructor (body, initializer)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#typeof">typeof (value)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#instanceof">instanceof (value, t)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#cast">cast (value, t)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#throw">throw (err, level)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#warn">warn (message, ...)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#enum">enum (name)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getfenv">getfenv (fn)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setfenv">setfenv (fn, env)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#list">list (collection)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lambda">lambda (content)</a></td>
+	<td class="summary"></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Error.new">Error.new (message)</a></td>
+	<td class="summary"></td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "tick"></a>
+    <strong>tick ()</strong>
+    </dt>
+    <dd>
+
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isFinite"></a>
+    <strong>isFinite (n)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+         number
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isNaN"></a>
+    <strong>isNaN (v)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+         any
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "repr"></a>
+    <strong>repr (data, level)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+
+        </li>
+        <li><span class="parameter">level</span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        void
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "range"></a>
+    <strong>range (from, to, step)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">from</span>
+         number
+        </li>
+        <li><span class="parameter">to</span>
+         number
+        </li>
+        <li><span class="parameter">step</span>
+         number
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        function</li>
+        <li>
+        nil</li>
+        <li>
+        number</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "bind"></a>
+    <strong>bind (fn, self, ...)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         Function
+        </li>
+        <li><span class="parameter">self</span>
+         table
+        </li>
+        <li><span class="parameter">...</span>
+         any
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Function
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "using"></a>
+    <strong>using (t)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "import"></a>
+    <strong>import (module)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">module</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "singleton"></a>
+    <strong>singleton (name)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "module"></a>
+    <strong>module (name)</strong>
+    </dt>
+    <dd>
+    Only for looks, equivalent to
+ just returning a string indexed
+ table.  Usage:
+ ```return module "Animals" {
+     Dog = Dog;
+     Cat = Cat;
+ }```
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        fun(body: table): { Name: string }
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "namespace"></a>
+    <strong>namespace (name)</strong>
+    </dt>
+    <dd>
+    Creates a namespace
+ and injects it into
+ the global scope.  An
+ alias for the namespace
+ is optional using
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        function
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "__tostring"></a>
+    <strong>__tostring ()</strong>
+    </dt>
+    <dd>
+
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "extend"></a>
+    <strong>extend (self, instance)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         table
+        </li>
+        <li><span class="parameter">instance</span>
+         table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "class"></a>
+    <strong>class (name)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "constructor"></a>
+    <strong>constructor (body, initializer)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">body</span>
+         table
+        </li>
+        <li><span class="parameter">initializer</span>
+         function
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "typeof"></a>
+    <strong>typeof (value)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         any
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "instanceof"></a>
+    <strong>instanceof (value, t)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         any
+        </li>
+        <li><span class="parameter">t</span>
+         type
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "cast"></a>
+    <strong>cast (value, t)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         table
+        </li>
+        <li><span class="parameter">t</span>
+         type
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Class<any> | any
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "throw"></a>
+    <strong>throw (err, level)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">err</span>
+         Error
+        </li>
+        <li><span class="parameter">level</span>
+        ? integer
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "warn"></a>
+    <strong>warn (message, ...)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+         string
+        </li>
+        <li><span class="parameter">...</span>
+         string[]
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        void
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "enum"></a>
+    <strong>enum (name)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getfenv"></a>
+    <strong>getfenv (fn)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         function
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setfenv"></a>
+    <strong>setfenv (fn, env)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         function
+        </li>
+        <li><span class="parameter">env</span>
+         table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "list"></a>
+    <strong>list (collection)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">collection</span>
+         table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lambda"></a>
+    <strong>lambda (content)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">content</span>
+         String
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Function
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Error.new"></a>
+    <strong>Error.new (message)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2023-05-07 23:07:58 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

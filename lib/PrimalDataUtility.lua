@@ -31,7 +31,7 @@ function mtstr.__bnot(a)
 end
 
 ---@param a string
----@param b string
+---@param b integer
 ---@return string
 function mtstr.__mul(a, b)
     return a:rep(b)
@@ -46,7 +46,7 @@ end
 
 ---@param a String
 ---@param b string
----@return Vector
+---@return List
 function mtstr.__div(a, b)
     return a:Split(b)
 end
@@ -54,7 +54,7 @@ end
 local old_mtIndex = mtstr.__index
 ---@param str string
 ---@param i integer | table
----@return string
+---@return string?
 function mtstr.__index(str, i)
     if type(i) == "number" then
         local char = str:sub(i, i)
@@ -62,7 +62,7 @@ function mtstr.__index(str, i)
     elseif type(i) == "table" then
         local sub = str:sub(i[1], i[2])
         return sub
-    elseif type(old_mtIndex) == "table" then 
+    elseif type(old_mtIndex) == "table" then
         return old_mtIndex[i]
     else if type(old_mtIndex) == nil then
         return old_mtIndex[i]
@@ -96,7 +96,7 @@ function values(t)
     end
 end
 
----@vararg ...
+---@param ... any[]
 ---@return function
 function varargs(...)
     return values {...}

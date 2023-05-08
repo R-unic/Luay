@@ -1,10 +1,6 @@
----@class Vector<T> : Class
----@field type type
----@field cache table
 local Vector = class "Vector" do
     ---@param T type
     ---@param base table
-    ---@return Vector
     function Vector.new(T, base)
         assert(T and typeof(T) == "string", "cannot create std::Vector with no type")
         return Vector:constructor(function(self)
@@ -60,7 +56,7 @@ local Vector = class "Vector" do
         end
         return res
     end
-    
+
     function Vector:Fill(amount, callback)
         for i = 1, amount do
             self:Add((callback or lambda "|i| -> i")(i))
@@ -179,7 +175,7 @@ local Vector = class "Vector" do
     function Vector:Display()
         repr(self)
     end
-    
+
     function Vector:ToTable()
         return self.cache
     end
@@ -332,7 +328,7 @@ local List = class "List" do
     function List:Values()
         return values(self.cache)
     end
-    
+
     function List:Display()
         repr(self)
     end
@@ -379,7 +375,7 @@ local Stack = class "Stack" do
             end
         end)
     end
-    
+
     function Stack:Unpack()
         return table.unpack(self.cache)
     end
@@ -391,7 +387,7 @@ local Stack = class "Stack" do
         end
         return res
     end
-    
+
     function Stack:First()
         return self.cache[1]
     end
@@ -477,7 +473,7 @@ local Map = class "Map" do
     local function MapTypeError(value, expected)
         throw(Error(("MapTypeError: \n\tgot: %s\n\texpected: %s"):format(type(value), expected)))
     end
-    
+
     local function AssertType(value, expected)
         if not TypeEquals(value, expected) then
             MapTypeError(value, expected)
@@ -515,7 +511,7 @@ local Map = class "Map" do
     function Map:Values()
         return values(self.cache)
     end
-    
+
     function Map:Display()
         repr(self)
     end
@@ -957,7 +953,7 @@ local Set = class "Set" do
     function Set:Display()
         repr(self)
     end
-    
+
     function Set:ToTable()
         return self.cache
     end
@@ -1147,7 +1143,7 @@ local MultiMap = class "MultiMap" do
     local function MapTypeError(value, expected)
         throw(Error(("MultiMapTypeError: \n\tgot: %s\n\texpected: %s"):format(typeof(value), expected)), 2)
     end
-    
+
     local function AssertType(value, expected)
         if not TypeEquals(value, expected) then
             MapTypeError(value, expected)
